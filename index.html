@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kazakhstan Hydrogen Interactive Tool</title>
+    
+    <!-- CSS Files -->
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/sidebar.css">
+    <link rel="stylesheet" href="css/map.css">
+    <link rel="stylesheet" href="css/results.css">
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+  /* --- Schematics Panel (floats above map) --- */
+  #schematics-panel.schem-panel {
+    position: absolute;
+    top: 82px;
+    right: 12px;
+    width: 560px;           /* bigger panel */
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 14px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    display: none;
+    z-index: 10050;         /* above Leaflet controls/tiles */
+    pointer-events: auto;
+  }
+  #schematics-panel.schem-panel.show { display: block; }
+  .schem-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:10px 12px; font-weight:600; border-bottom:1px solid #eee;
+  }
+  .schem-header button { border:none; background:transparent; font-size:18px; cursor:pointer; }
+  .schem-body { padding: 8px 10px; font-size: 10px;}
+  .schem-footer { padding: 8px 12px; border-top:1px solid #eee; color:#333; font-size:13px; }
+  .schem-icon-label--large { font-size: 16px; font-weight: 600; }
+    @media (max-width: 1200px) {
+    .schem-panel { width: 360px; }
+    }
+
+  /* --- Action Helper Pill --- */
+  .action-helper-pill {
+    display:flex; align-items:center; justify-content:center;
+    padding:10px 12px; border-radius:999px; background:#f3f6ff; color:#2b4cd6;
+    font-weight:600; font-size:13px; border:1px dashed #c7d2fe; margin-bottom:8px;
+    min-height:36px;
+  }
+  .shake {
+    animation: shake 300ms ease-in-out;
+  }
+  /* index.html (or your stylesheet) */
+    .snap-box { 
+    padding: 0;            /* remove inner padding */
+    overflow: hidden; 
+    }
+
+    .snap-box .snap-body {
+    padding: 0;            /* if there’s a nested body wrapper */
+    }
+
+    .snap-box svg,
+    .snap-box img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;    /* avoid stretching, no extra whitespace */
+    }
+
+  @keyframes shake {
+    0%,100%{ transform: translateX(0);}
+    20%{ transform: translateX(-4px);}
+    40%{ transform: translateX(4px);}
+    60%{ transform: translateX(-3px);}
+    80%{ transform: translateX(3px);}
+  }
+  .btn-disabled {
+    opacity: .5; pointer-events: none;
+  }
+
+</style>
+
+</head>
+<body>
+    
+    <!-- Password Gate (client-side) -->
+    <div id="auth-overlay" style="
+        position: fixed; inset: 0; z-index: 99999;
+        display: none; align-items: center; justify-content: center;
+        background: rgba(10, 10, 10, 0.85);
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    ">
+        <div style="
+            width: min(420px, 92vw);
+            background: white;
+            border-radius: 14px;
+            padding: 22px 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+        ">
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Kazakhstan Hydrogen Tool</div>
+            <div style="font-size: 13px; color: #555; margin-bottom: 14px;">Enter password to continue</div>
+            <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="
+                width: 100%;
+                padding: 10px 12px;
+                border: 1px solid #ddd;
+                border-radius: 10px;
+                font-size: 14px;
+                outline: none;
+            " />
+            <div id="auth-error" style="display:none; margin-top:8px; color:#b00020; font-size: 13px;">
+                Incorrect password. Try again.
+            </div>
+            <button id="auth-submit" style="
+                margin-top: 14px;
+                width: 100%;
+                padding: 10px 12px;
+                border: 0;
+                border-radius: 10px;
+                font-size: 14px;
+                font-weight: 700;
+                background: #1f6feb;
+                color: white;
+                cursor: pointer;
+            ">Unlock</button>
+        </div>
+    </div>
+
+<!-- Loading Overlay -->
+<div id="app-loader" class="loader-overlay" aria-live="polite">
+  <div class="loader-card">
+    <div class="loader-title">Loading Kazakhstan Hydrogen Tool…</div>
+    <div class="loader-bar">
+      <div class="loader-bar-fill" id="loader-bar-fill" style="width: 0%"></div>
+    </div>
+    <div class="loader-status" id="loader-status">Starting…</div>
+  </div>
+</div>
+    <div class="app-container">
+        <!-- Header -->
+        <header>
+            <div class="logo-container">
+                <div class="logo">
+                    <img src="assets/icons/logo.png" alt="Logo" />
+                </div>
+                <h1 class="title">Kazakhstan Hydrogen Interactive Tool</h1>
+            </div>
+            <div class="user-controls">
+                <div class="access-toggle">
+                    <button class="active">Public Access</button>
+                    <button>Company Access</button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Schematics (live) -->
+            <div id="schematics-panel" class="schem-panel"></div>
+            <!-- Sidebar -->
+            <div class="sidebar" id="sidebar">
+                <!-- Hydrogen Type Toggle -->
+                <div class="hydrogen-toggle">
+                    <button class="green active" data-mode="green">Green H₂</button>
+                    <button class="blue" data-mode="blue">Blue H₂</button>
+                    <button class="yellow" data-mode="derivatives">Derivatives</button>
+                </div>
+                
+                <!-- Dynamic Panels Container -->
+                <div id="sidebar-panels">
+                    <!-- Panels will be dynamically loaded based on mode -->
+                </div>
+                
+
+                <!-- Action Buttons -->
+                <div class="action-buttons" id="action-area">
+                  <div id="action-helper" class="action-helper-pill" role="status" aria-live="polite" style="display:flex">Choose a region to Calculate</div>
+                  <button class="primary-btn" id="calculate-btn" style="display:none">Calculate Results</button>  
+                  <button class="secondary-btn" id="reset-btn" style="display:none">Reset</button>
+                </div>
+
+            </div>
+            
+            <!-- Map Container -->
+            <div class="map-container">
+                <!-- Map Controls -->
+                <div class="map-controls">
+                    <div class="control-group">
+                        <button class="control-btn" id="zoom-in-btn" title="Zoom In">+</button>
+                        <button class="control-btn" id="zoom-out-btn" title="Zoom Out">−</button>
+                        <button class="control-btn" id="layers-btn" title="Layers">☰</button>
+                        <button class="control-btn" id="reset-view-btn" title="Reset View">⌂</button>
+                    </div>
+                </div>
+                
+                <!-- Layers Panel -->
+                <div class="layers-panel" id="layers-panel">
+                    <div class="layers-header">
+                        <span>Map Layers</span>
+                        <button class="close-btn" id="close-layers">×</button>
+                    </div>
+                    <div class="layers-content" id="layers-content">
+                        <!-- Dynamic layer controls will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Info Popup Panel -->
+                <div class="info-popup" id="info-popup" style="display: none;">
+                    <div class="popup-header">
+                        <span id="popup-title">Information</span>
+                        <button class="close-btn" id="close-popup">×</button>
+                    </div>
+                    <div class="popup-content" id="popup-content">
+                        <!-- Dynamic content will be loaded here -->
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                <div class="map" id="kazakhstan-map"></div>
+
+                <div class="map-legend" id="map-legend" style="display: none;">
+                    <div class="legend-header">
+                        <span class="legend-title">Legend</span>
+                        <button class="legend-toggle" id="legend-toggle">−</button>
+                    </div>
+                    <div class="legend-content" id="legend-content">
+                        <!-- Dynamic legend content will be inserted here -->
+                    </div>
+                </div>
+                
+                <!-- Results Panel -->
+                <div class="results-panel" id="results-panel" style="display: none;">
+                    <div class="results-heading">
+                        <h3 id="results-title">Results</h3>
+                        <button class="close-btn" id="close-results">×</button>
+                    </div>
+                    
+                    <div class="tabs">
+                        <div class="tab active" data-tab="summary">Summary</div>
+                        <div class="tab" data-tab="economics">Economics</div>
+                        <div class="tab" data-tab="technical">Technical</div>
+                        <div class="tab" data-tab="environmental">Environmental</div>
+                    </div>
+                    
+                    <div class="tab-content" id="tab-content">
+                        <!-- Dynamic tab content will be loaded here -->
+                    </div>
+                    
+                    <!-- Export Buttons -->
+                    <div class="export-buttons">
+                        <button class="export-btn" id="export-pdf">Export PDF</button>
+                        <button class="export-btn" id="export-excel">Export Excel</button>
+                        <button class="export-btn" id="export-data">Export Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- External Libraries -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
+    
+    <!-- data & utils FIRST -->
+    <script src="js/data/dataLoader.js"></script>
+
+    <!-- calculators that may use DataLoader -->
+    <script src="js/calculations/greenHydrogen.js"></script>
+    <script src="js/calculations/blueHydrogen.js"></script>
+    <script src="js/calculations/derivatives.js"></script>
+
+    <!-- map & UI -->
+    <script src="js/map/popupManager.js"></script>
+    <script src="js/results/resultsManager.js"></script>
+    <script src="js/sidebar/sidebarManager.js"></script>
+    <script src="js/map/layersConfig.js"></script>
+    <script src="js/map/mapManager.js"></script>
+
+    <!-- schematics (new) -->
+    <script src="js/schematics/schematicsManager.js"></script>
+
+    
+<!-- app LAST -->
+<script src="js/app.js" defer></script>
+
+<!-- Password gate -->
+<script>
+  (function() {
+    const KEY = 'kht_auth_v1';
+    const PASSWORD = 'hydrogen';
+
+    function showGate() {
+      const overlay = document.getElementById('auth-overlay');
+      const input = document.getElementById('auth-password');
+      const btn = document.getElementById('auth-submit');
+      const err = document.getElementById('auth-error');
+      overlay.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+      setTimeout(() => input && input.focus(), 50);
+
+      function tryUnlock() {
+        const val = (input.value || '').trim();
+        if (val === PASSWORD) {
+          localStorage.setItem(KEY, '1');
+          overlay.style.display = 'none';
+          document.body.style.overflow = '';
+          window.__kht_authenticated = true;
+          window.dispatchEvent(new Event('kht:auth'));
+        } else {
+          if (err) err.style.display = 'block';
+          input.value = '';
+          input.focus();
+        }
+      }
+
+      btn.addEventListener('click', tryUnlock);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') tryUnlock();
+      });
+    }
+
+    if (localStorage.getItem(KEY) === '1') {
+      window.__kht_authenticated = true;
+    } else {
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showGate);
+      } else {
+        showGate();
+      }
+    }
+  })();
+</script>
+
+</body>
+</html>
