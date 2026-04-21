@@ -9,6 +9,13 @@ const DataLoader = {
         geojson: 'data/geojson/',
         csv: 'data/csv/'
     },
+
+    withVersion(path) {
+        const version = window.KHT_ASSET_VERSION;
+        if (!version) return path;
+        const separator = path.includes('?') ? '&' : '?';
+        return `${path}${separator}v=${encodeURIComponent(version)}`;
+    },
     
     // Load all required data
     async loadAllData() {
@@ -102,7 +109,7 @@ const DataLoader = {
             
             console.log(`Loading GeoJSON from: ${url}`);
             
-            const response = await fetch(url);
+            const response = await fetch(this.withVersion(url), { cache: 'no-store' });
             if (!response.ok) {
                 console.warn(`GeoJSON file not found: ${filename} (${response.status})`);
                 return null;
@@ -119,7 +126,7 @@ const DataLoader = {
     // Load and parse CSV file
     async loadCSV(filename) {
         try {
-            const response = await fetch(this.paths.csv + filename);
+            const response = await fetch(this.withVersion(this.paths.csv + filename), { cache: 'no-store' });
             if (!response.ok) {
                 console.warn(`CSV file not found: ${filename}`);
                 return this.getEmptyDataStructure(filename);

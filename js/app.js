@@ -490,10 +490,7 @@ function wireCalculateButton() {
   const btn = document.getElementById('calculate-results') 
            || document.getElementById('calculate-button')
            || document.querySelector('[data-action="calculate"]');
-  if (!btn) {
-    console.warn('Calculate button not found. Add id="calculate-results" to the button.');
-    return;
-  }
+  if (!btn) return;
   btn.addEventListener('click', async () => {
     console.log('[KHT] Calculate clicked. Mode=', AppState.mode);
     await performCalculation();
