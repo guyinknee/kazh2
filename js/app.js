@@ -692,46 +692,6 @@ window.addEventListener('error', function(e) {
     console.error('Global error:', e);
 });
 
-function debugWMALayer() {
-    console.log('=== WMA Layer Debug ===');
-    
-    // Check if WMA data is loaded
-    console.log('WMA GeoJSON data:', AppState.data.wmaGeoJSON);
-    
-    // Check if layer exists in MapManager
-    console.log('WMA layer in MapManager:', MapManager.layers['wma-boundaries']);
-    
-    // Check if layer is on map
-    if (MapManager.layers['wma-boundaries']) {
-        console.log('WMA layer on map:', MapManager.map.hasLayer(MapManager.layers['wma-boundaries']));
-    }
-    
-    // Check layer configuration
-    const wmaConfig = LayersConfig.getLayerById('wma-boundaries');
-    console.log('WMA layer config:', wmaConfig);
-    
-    // Try to manually add the layer
-    if (AppState.data.wmaGeoJSON && !MapManager.layers['wma-boundaries']) {
-        console.log('Manually creating WMA layer...');
-        const testLayer = L.geoJSON(AppState.data.wmaGeoJSON, {
-            style: {
-                fillColor: '#2196f3',
-                fillOpacity: 0.5,
-                color: '#1976d2',
-                weight: 3
-            }
-        });
-        testLayer.addTo(MapManager.map);
-        console.log('Test layer added to map');
-    }
-}
-
-// Call this after the app loads
-setTimeout(() => {
-    console.log('Running WMA debug...');
-    debugWMALayer();
-}, 3000);
-
 
 document.addEventListener('DOMContentLoaded', () => {
   const authed = (localStorage.getItem('kht_auth_v1') === '1') || (window.__kht_authenticated === true);

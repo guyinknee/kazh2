@@ -111,6 +111,23 @@ const MapManager = {
         
         // Log all created layers
         console.log('Created layers:', Object.keys(this.layers));
+
+        // WMA must stay off by default on first render.
+        this.enforceDefaultLayerState();
+    },
+
+    enforceDefaultLayerState() {
+        const wmaLayer = this.layers['wma-boundaries'];
+        if (wmaLayer && this.map.hasLayer(wmaLayer)) {
+            this.map.removeLayer(wmaLayer);
+        }
+
+        const wmaCheckbox = document.getElementById('layer-wma-boundaries');
+        if (wmaCheckbox) {
+            wmaCheckbox.checked = false;
+        }
+
+        LegendManager.update(AppState.mode);
     },
     
         // Update addLayer to handle Caspian projections
