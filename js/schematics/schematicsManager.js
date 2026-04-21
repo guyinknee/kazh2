@@ -66,13 +66,13 @@ const SchematicsManager = {
     
     this.el.innerHTML = `
       <div class="schem-header">
-        <span>Process Schematic</span>
-        <button id="schem-close" aria-label="Hide schematic">—</button>
+        <span>${t('schematic.processSchematic')}</span>
+        <button id="schem-close" aria-label="${t('schematic.hideSchematic')}">—</button>
       </div>
       <div class="schem-body">
         <svg id="schem-svg" viewBox="0 0 ${this.PANEL.w} ${this.PANEL.h}" preserveAspectRatio="xMidYMid meet"></svg>
       </div>
-      <div class="schem-footer"><span id="schem-caption">Select a region to beginвЂ¦</span></div>
+      <div class="schem-footer"><span id="schem-caption">${t('schematic.selectRegionBegin')}</span></div>
     `;
     this.svg = this.el.querySelector('#schem-svg');
     this.el.querySelector('#schem-close')?.addEventListener('click', () => this.hide());
@@ -213,25 +213,26 @@ const SchematicsManager = {
     };
     const regionLabelResolved =
       this.state.regionLabel || getRegionFromSidebar() || 'Region';
+    const localizedRegionLabel = I18n.regionName(regionLabelResolved);
 
     const hasRegion = !!(this.state.regionLabel || getRegionFromSidebar());
     const hasField  = !!(this.state.gasFieldLabel);
     const regionPicked = hasRegion || hasField;
 
     if (!regionPicked) {
-      captionEl.textContent = 'Select a region to begin\u2026';
+      captionEl.textContent = t('schematic.selectRegionBegin');
       this.hide();
       return;
     }
 
     if (this.mode === 'green') {
       if (!(this.state.resType && this.state.waterType && this.state.electrolyzer)) {
-        captionEl.textContent = regionLabelResolved + ' \u2022 Select inputs\u2026';
+        captionEl.textContent = `${localizedRegionLabel} \u2022 ${t('schematic.selectInputs')}`;
         this.show();
         return;
       }
       this.drawGreen();
-      captionEl.textContent = regionLabelResolved + ' \u2022 ' + this.state.electrolyzer;
+      captionEl.textContent = localizedRegionLabel + ' \u2022 ' + this.state.electrolyzer;
       this.show();
     } else if (this.mode === 'blue') {
       if (!(this.state.reformer && this.state.co2Disposition)) {
@@ -269,8 +270,8 @@ const SchematicsManager = {
     const waterY  = unitY + verticalGap;
 
     // Labels mapping
-    const energyLabelMap = { solar:'Solar Energy', wind:'Wind Energy', hydro:'Hydro Energy' };
-    const waterLabelMap  = { fresh:'Freshwater', brackish:'Brackish Water', waste:'Treated Wastewater', ground:'Groundwater' };
+    const energyLabelMap = { solar:t('schematic.solarEnergy'), wind:t('schematic.windEnergy'), hydro:t('schematic.hydroEnergy') };
+    const waterLabelMap  = { fresh:t('schematic.freshwater'), brackish:t('schematic.brackishWater'), waste:t('schematic.treatedWastewater'), ground:t('schematic.groundwater') };
 
     const energyKey   = this.state.resType;      // 'solar' | 'wind' | 'hydro'
     const waterKey    = this.state.waterType;    // 'fresh' | 'brackish' | 'waste' | 'ground'
@@ -286,7 +287,7 @@ const SchematicsManager = {
 
     // Electrolyzer (same size)
     const eX = midX, eY = unitY;
-    const elzLabel = `${this.state.electrolyzer} Electrolyzer`;
+    const elzLabel = `${this.state.electrolyzer} ${t('schematic.electrolyzerSuffix')}`;
     this.icon(eX - this.ICON.md/2, eY - this.ICON.md/2, this.ICON.md, this.ICON.md, this.state.electrolyzer, elzLabel);
 
     // Hв‚‚ (same)
@@ -297,16 +298,16 @@ const SchematicsManager = {
     const inletOffset = 10;
     if (this.state.renderMode === 'snap') this.fitViewBoxToContent(4);
 
-    this.line(leftX + srcSize + this.SNAP, energyY, eX - this.ICON.md/2 - this.SNAP, eY - inletOffset, false, 'Electricity',{ labelSide: 'above', labelOffset: 13, useMidpoint: true });
+    this.line(leftX + srcSize + this.SNAP, energyY, eX - this.ICON.md/2 - this.SNAP, eY - inletOffset, false, t('schematic.electricity'),{ labelSide: 'above', labelOffset: 13, useMidpoint: true });
     this.line(
       leftX + srcSize + this.SNAP, waterY,
       eX - this.ICON.md/2 - this.SNAP, eY + inletOffset,
-      false, 'Water',
+      false, t('schematic.water'),
       { labelSide: 'below', labelOffset: 13, useMidpoint: true } // в†ђ key change
     );
 
     // Outlet
-    this.line(eX + this.ICON.md/2 + this.SNAP, eY, h2X - this.ICON.lg/2 - this.SNAP, h2Y, false, 'Hydrogen');
+    this.line(eX + this.ICON.md/2 + this.SNAP, eY, h2X - this.ICON.lg/2 - this.SNAP, h2Y, false, t('schematic.hydrogen'));
   },
 
   // Orthogonal Blue: gas вЂ” reformer вЂ” hydrogen; CO2 vertical then horizontal to fate

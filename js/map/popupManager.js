@@ -42,10 +42,10 @@ const PopupManager = {
     
     // Get popup title
     getPopupTitle(data, config) {
-        if (data.name_en) return data.name_en;
+        if (data.name_en) return I18n.regionName(data.name_en);
         if (data.name) return data.name;
-        if (data.id) return `${config.name} - ${data.id}`;
-        return config.name || 'Information';
+        if (data.id) return `${I18n.layerName(config.id, config.name)} - ${data.id}`;
+        return I18n.layerName(config.id, config.name) || t('popup.information');
     },
     
     // Generate popup content
@@ -102,53 +102,53 @@ const PopupManager = {
         
         // Renewable energy section
         html += `
-            <div class="popup-section-title">Resource & Siting</div>
+            <div class="popup-section-title">${t('popup.resourceSiting')}</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🗺️ Available land:</span>
-                <span class="popup-metric-value">${regionalData?.available_land_km2 ?? 'N/A'} km²</span>
+                <span class="popup-metric-label">${t('popup.availableLand')}:</span>
+                <span class="popup-metric-value">${regionalData?.available_land_km2 ?? t('results.nA')} km2</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">☀️ Solar Energy Potential:</span>
-                <span class="popup-metric-value">${regionalData?.pvout_kwh_kwp_yr ?? '—'} kWh/kWp·yr</span>
+                <span class="popup-metric-label">${t('popup.solarPotential')}:</span>
+                <span class="popup-metric-value">${regionalData?.pvout_kwh_kwp_yr ?? '--'} kWh/kWp/yr</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🌬️ Wind Energy Potential:</span>
-                <span class="popup-metric-value">${regionalData?.wpd_w_m2_10pct ?? 'N/A'} W/m² · ${regionalData?.ws_m_s_10pct ?? '—'} m/s</span>
+                <span class="popup-metric-label">${t('popup.windPotential')}:</span>
+                <span class="popup-metric-value">${regionalData?.wpd_w_m2_10pct ?? t('results.nA')} W/m2, ${regionalData?.ws_m_s_10pct ?? '--'} m/s</span>
             </div>
             <div class="popup-metric">
-            <span class="popup-metric-label">💦 Hydropower Potential:</span>
+            <span class="popup-metric-label">${t('popup.hydropowerPotential')}:</span>
             <span class="popup-metric-value">
-                ${regionalData?.hydro_potential_mw ?? '—'} MW 
+                ${regionalData?.hydro_potential_mw ?? '--'} MW
             </span>
             </div>
         </div>
         <div class="popup-section">
-            <div class="popup-section-title">Water Resources (Million m³/year)</div>
+            <div class="popup-section-title">${t('popup.waterResources')}</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">💧 Freshwater:</span>
-                <span class="popup-metric-value">${regionalData?.freshwater_mln_m3 || 'N/A'}</span>
+                <span class="popup-metric-label">${t('popup.freshwater')}:</span>
+                <span class="popup-metric-value">${regionalData?.freshwater_mln_m3 || t('results.nA')}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🏔️ Groundwater:</span>
-                <span class="popup-metric-value">${regionalData?.groundwater_mln_m3 || 'N/A'}</span>
+                <span class="popup-metric-label">${t('popup.groundwater')}:</span>
+                <span class="popup-metric-value">${regionalData?.groundwater_mln_m3 || t('results.nA')}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🌊 Brackish Water:</span>
-                <span class="popup-metric-value">${regionalData?.brackish_water_mln_m3 || 'N/A'}</span>
+                <span class="popup-metric-label">${t('popup.brackishWater')}:</span>
+                <span class="popup-metric-value">${regionalData?.brackish_water_mln_m3 || t('results.nA')}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">🏭 Treated Wastewater:</span>
-                <span class="popup-metric-value">${regionalData?.wastewater_mln_m3 || 'N/A'}</span>
+                <span class="popup-metric-label">${t('popup.treatedWastewater')}:</span>
+                <span class="popup-metric-value">${regionalData?.wastewater_mln_m3 || t('results.nA')}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">💧 Total Available:</span>
+                <span class="popup-metric-label">${t('popup.totalAvailable')}:</span>
                 <span class="popup-metric-value" style="font-weight: bold; color: var(--blue);">
                     ${regionalData ? 
                     (parseFloat(regionalData.freshwater_mln_m3 || 0) + 
                     parseFloat(regionalData.groundwater_mln_m3 || 0) +
                     parseFloat(regionalData.brackish_water_mln_m3 || 0) + 
                     parseFloat(regionalData.wastewater_mln_m3 || 0)).toFixed(1) : 
-                    'N/A'} mln m³/year
+                    'N/A'} mln m3/year
                 </span>
             </div>
         </div>
@@ -158,20 +158,20 @@ const PopupManager = {
         if (regionalData) {
             html += `
             <div class="popup-section">
-                <div class="popup-section-title">Quick Visuals</div>
+                <div class="popup-section-title">${t('popup.quickVisuals')}</div>
                 <div class="popup-chart" style="margin-bottom:12px;">
-                <div style="font-size:12px; color:#666; margin-bottom:6px;">Region vs Kazakhstan Avg</div>
+                <div style="font-size:12px; color:#666; margin-bottom:6px;">${t('popup.regionVsAvg')}</div>
                 <canvas id="region-compare-chart" width="320" height="160"></canvas>
                 </div>
                 <div class="popup-chart">
-                <div style="font-size:12px; color:#666; margin-bottom:6px;">Water Resources Breakdown (mln m³/yr)</div>
+                <div style="font-size:12px; color:#666; margin-bottom:6px;">${t('popup.waterBreakdown')}</div>
                 <canvas id="region-water-chart" width="320" height="160"></canvas>
                 </div>
             </div>`;
             } else {
             html += `
             <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 4px; border: 1px solid #ffc107;">
-                <strong>⚠️ Note:</strong> Regional data not available. Please ensure the region name matches the data file.
+                <strong>${t('popup.note')}:</strong> ${t('popup.regionalDataMissing')}
             </div>`;
             }
         
@@ -182,77 +182,77 @@ const PopupManager = {
     generateWastewaterContent(data) {
         // Calculate H2 potential from available water
         const dailyH2Potential = data.available_for_reuse_percent ? 
-            (data.capacity_m3_day * (data.available_for_reuse_percent/100) / 9).toFixed(0) : 'N/A';
+            (data.capacity_m3_day * (data.available_for_reuse_percent/100) / 9).toFixed(0) : t('results.nA');
         
         const annualH2Potential = data.discharge_volume_mln_m3_year && data.available_for_reuse_percent ? 
-            (data.discharge_volume_mln_m3_year * 1e6 * (data.available_for_reuse_percent/100) / 9 / 1000).toFixed(1) : 'N/A';
+            (data.discharge_volume_mln_m3_year * 1e6 * (data.available_for_reuse_percent/100) / 9 / 1000).toFixed(1) : t('results.nA');
         
         // Discharge type display
         const dischargeTypeDisplay = {
-            'water_body': '🌊 Water Body',
-            'pond_evaporator': '☀️ Evaporation Pond',
-            'unknown': '❓ Unknown'
+            'water_body': t('popup.waterBody'),
+            'pond_evaporator': t('popup.evaporationPond'),
+            'unknown': t('popup.unknown')
         };
         
         // Treatment level display
         const treatmentLevelDisplay = {
-            'primary': '🔵 Primary',
-            'secondary': '🟡 Secondary', 
-            'tertiary': '🟢 Tertiary',
-            'unknown': '❓ Unknown'
+            'primary': t('popup.primary'),
+            'secondary': t('popup.secondary'), 
+            'tertiary': t('popup.tertiary'),
+            'unknown': t('popup.unknown')
         };
         
         return `
             <div class="popup-section">
-                <div class="popup-section-title">Plant Information</div>
+                <div class="popup-section-title">${t('popup.plantInformation')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">City:</span>
-                    <span class="popup-metric-value">${data.city || 'N/A'}</span>
+                    <span class="popup-metric-label">${t('popup.city')}:</span>
+                    <span class="popup-metric-value">${data.city || t('results.nA')}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Operator:</span>
-                    <span class="popup-metric-value">${data.operator || data.name || 'N/A'}</span>
+                    <span class="popup-metric-label">${t('popup.operator')}:</span>
+                    <span class="popup-metric-value">${data.operator || data.name || t('results.nA')}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Treatment Level:</span>
-                    <span class="popup-metric-value">${treatmentLevelDisplay[data.treatment_level] || data.treatment_level || 'N/A'}</span>
+                    <span class="popup-metric-label">${t('popup.treatmentLevel')}:</span>
+                    <span class="popup-metric-value">${treatmentLevelDisplay[data.treatment_level] || data.treatment_level || t('results.nA')}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Discharge To:</span>
+                    <span class="popup-metric-label">${t('popup.dischargeTo')}:</span>
                     <span class="popup-metric-value" style="font-weight: bold;">
-                        ${dischargeTypeDisplay[data.discharge_type] || data.discharge_type || 'N/A'}
+                        ${dischargeTypeDisplay[data.discharge_type] || data.discharge_type || t('results.nA')}
                     </span>
                 </div>
             </div>
             <div class="popup-section">
-                <div class="popup-section-title">Capacity & Flow</div>
+                <div class="popup-section-title">${t('popup.capacityFlow')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Daily Capacity:</span>
-                    <span class="popup-metric-value">${this.formatNumber(data.capacity_m3_day || 0)} m³/day</span>
+                    <span class="popup-metric-label">${t('popup.dailyCapacity')}:</span>
+                    <span class="popup-metric-value">${this.formatNumber(data.capacity_m3_day || 0)} m3/day</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Annual Discharge:</span>
-                    <span class="popup-metric-value">${data.discharge_volume_mln_m3_year || 0} mln m³/year</span>
+                    <span class="popup-metric-label">${t('popup.annualDischarge')}:</span>
+                    <span class="popup-metric-value">${data.discharge_volume_mln_m3_year || 0} mln m3/year</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Available for Reuse:</span>
+                    <span class="popup-metric-label">${t('popup.availableForReuse')}:</span>
                     <span class="popup-metric-value">${data.available_for_reuse_percent || 0}%</span>
                 </div>
             </div>
             <div class="popup-section">
-                <div class="popup-section-title">H₂ Production Potential</div>
+                <div class="popup-section-title">${t('popup.h2ProductionPotential')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Daily H₂ Potential:</span>
+                    <span class="popup-metric-label">${t('popup.dailyH2Potential')}:</span>
                     <span class="popup-metric-value">${dailyH2Potential} kg/day</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Annual H₂ Potential:</span>
+                    <span class="popup-metric-label">${t('popup.annualH2Potential')}:</span>
                     <span class="popup-metric-value">${annualH2Potential} kt/year</span>
                 </div>
             </div>
             ${data.discharge_type === 'pond_evaporator' ? `
             <div style="margin-top: 10px; padding: 10px; background: #fff3cd; border-radius: 4px; border: 1px solid #ffc107;">
-                <strong>⚠️ Note:</strong> Water discharged to evaporation ponds may have limited reuse potential for hydrogen production.
+                <strong>${t('popup.note')}:</strong> ${t('popup.evaporationPondNote')}
             </div>
             ` : ''}
         `;
@@ -342,22 +342,22 @@ const PopupManager = {
     generateDemandContent(data) {
         return `
             <div class="popup-section">
-                <div class="popup-section-title">Demand Point</div>
+                <div class="popup-section-title">${t('popup.demandPoint')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Type:</span>
+                    <span class="popup-metric-label">${t('popup.type')}:</span>
                     <span class="popup-metric-value">${data.type || 'N/A'}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Current H₂ Demand:</span>
+                    <span class="popup-metric-label">${t('popup.currentDemand')}:</span>
                     <span class="popup-metric-value">${data.current_h2_demand_kt_year || 0} kt/year</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Potential H₂ Demand:</span>
+                    <span class="popup-metric-label">${t('popup.potentialDemand')}:</span>
                     <span class="popup-metric-value">${data.potential_h2_demand_kt_year || 0} kt/year</span>
                 </div>
                 ${data.notes ? `
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Notes:</span>
+                    <span class="popup-metric-label">${t('popup.notes')}:</span>
                     <span class="popup-metric-value">${data.notes}</span>
                 </div>
                 ` : ''}
@@ -368,51 +368,51 @@ const PopupManager = {
     generateH2ProjectContent(data) {
         return `
             <div class="popup-section">
-                <div class="popup-section-title">Hydrogen Project Details</div>
+                <div class="popup-section-title">${t('popup.hydrogenProjectDetails')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Project Name:</span>
+                    <span class="popup-metric-label">${t('popup.projectName')}:</span>
                     <span class="popup-metric-value">${data.name || 'H₂ Project'}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Type:</span>
+                    <span class="popup-metric-label">${t('popup.type')}:</span>
                     <span class="popup-metric-value" style="color: ${data.type === 'green' ? '#4caf50' : '#2196f3'};">
-                        ${data.type === 'green' ? '🟢 Green H₂' : '🔵 Blue H₂'}
+                        🟢 ${t('popup.greenType')}
                     </span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Location:</span>
+                    <span class="popup-metric-label">${t('popup.location')}:</span>
                     <span class="popup-metric-value">${data.city || 'Kazakhstan'}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Status:</span>
+                    <span class="popup-metric-label">${t('popup.status')}:</span>
                     <span class="popup-metric-value">
-                        ${data.status === 'operational' ? '✅ Operational' : 
-                        data.status === 'construction' ? '🚧 Under Construction' : '📋 Planned'} 
+                        ${data.status === 'operational' ? `✅ ${t('popup.operational')}` : 
+                        data.status === 'construction' ? `🚧 ${t('popup.construction')}` : `📋 ${t('popup.planned')}`} 
                     </span>
                 </div>
             </div>
             <div class="popup-section">
-                <div class="popup-section-title">Technical Specifications</div>
+                <div class="popup-section-title">${t('popup.technicalSpecifications')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Capacity:</span>
+                    <span class="popup-metric-label">${t('popup.capacity')}:</span>
                     <span class="popup-metric-value">${data.capacity_mw || 'N/A'} MW</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Production:</span>
+                    <span class="popup-metric-label">${t('popup.production')}:</span>
                     <span class="popup-metric-value">${data.production_kt_year || 'N/A'} kt/year</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Technology:</span>
+                    <span class="popup-metric-label">${t('popup.technology')}:</span>
                     <span class="popup-metric-value">${data.technology || 'N/A'}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Commissioning:</span>
+                    <span class="popup-metric-label">${t('popup.commissioning')}:</span>
                     <span class="popup-metric-value">${data.commissioning_year || 'N/A'}</span>
                 </div>
             </div>
             ${data.description ? `
             <div class="popup-section">
-                <div class="popup-section-title">Description</div>
+                <div class="popup-section-title">${t('popup.description')}</div>
                 <div style="padding: 10px; background: #f5f5f5; border-radius: 4px; font-size: 12px;">
                     ${data.description}
                 </div>
@@ -434,28 +434,28 @@ generateRenewableContent(data) {
                   type.includes('hydro') || type.includes('гэс') ? 'Hydro' : 'Renewable';
     return `
         <div class="popup-section">
-            <div class="popup-section-title">${emoji} ${label} Power Plant</div>
+            <div class="popup-section-title">${emoji} ${t('popup.renewablePlant', { type: label })}</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">Name:</span>
+                <span class="popup-metric-label">${t('popup.name')}:</span>
                 <span class="popup-metric-value">${data.name_en || data.name || '—'}</span>
             </div>
             <div class="popup-metric">
-                <span class="popup-metric-label">Capacity:</span>
+                <span class="popup-metric-label">${t('popup.capacity')}:</span>
                 <span class="popup-metric-value">${capacity ? `${capacity} MW` : 'N/A'}</span>
             </div>
             ${data.owner ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Owner/Operator:</span>
+                <span class="popup-metric-label">${t('popup.ownerOperator')}:</span>
                 <span class="popup-metric-value">${data.owner}</span>
             </div>` : ''}
             ${data.commissioning_year ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Commissioning:</span>
+                <span class="popup-metric-label">${t('popup.commissioning')}:</span>
                 <span class="popup-metric-value">${data.commissioning_year}</span>
             </div>` : ''}
             ${data.note ? `
             <div class="popup-section">
-                <div class="popup-section-title">Notes</div>
+                <div class="popup-section-title">${t('popup.notes')}</div>
                 <div style="padding: 10px; background: #f5f5f5; border-radius: 4px; font-size: 12px;">
                     ${data.note}
                 </div>
@@ -472,33 +472,33 @@ generatePowerStationContent(data) {
     const cap = data.capacity_mw ?? null;
     return `
         <div class="popup-section">
-            <div class="popup-section-title">${emoji} Power Station</div>
+            <div class="popup-section-title">${emoji} ${t('popup.powerStation')}</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">Name:</span>
+                <span class="popup-metric-label">${t('popup.name')}:</span>
                 <span class="popup-metric-value">${data.name_en || data.name || '—'}</span>
             </div>
             ${data.subtype ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Type:</span>
+                <span class="popup-metric-label">${t('popup.type')}:</span>
                 <span class="popup-metric-value">${data.subtype}</span>
             </div>` : ''}
             <div class="popup-metric">
-                <span class="popup-metric-label">Capacity:</span>
+                <span class="popup-metric-label">${t('popup.capacity')}:</span>
                 <span class="popup-metric-value">${cap ? `${cap} MW` : 'N/A'}</span>
             </div>
             ${data.fuel ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Fuel:</span>
+                <span class="popup-metric-label">${t('popup.fuel')}:</span>
                 <span class="popup-metric-value">${data.fuel}</span>
             </div>` : ''}
             ${data.owner ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Owner/Operator:</span>
+                <span class="popup-metric-label">${t('popup.ownerOperator')}:</span>
                 <span class="popup-metric-value">${data.owner}</span>
             </div>` : ''}
             ${data.note ? `
             <div class="popup-section">
-                <div class="popup-section-title">Notes</div>
+                <div class="popup-section-title">${t('popup.notes')}</div>
                 <div style="padding: 10px; background: #f5f5f5; border-radius: 4px; font-size: 12px;">
                     ${data.note}
                 </div>
@@ -512,19 +512,19 @@ generatePowerLineContent(data) {
     const kv = data.voltage_kv || data.voltage || data.kv;
     return `
         <div class="popup-section">
-            <div class="popup-section-title">⚡ Power Line</div>
+            <div class="popup-section-title">⚡ ${t('popup.powerLine')}</div>
             <div class="popup-metric">
-                <span class="popup-metric-label">Name:</span>
+                <span class="popup-metric-label">${t('popup.name')}:</span>
                 <span class="popup-metric-value">${data.name_en || data.name || data.line_name || '—'}</span>
             </div>
             ${kv ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Voltage:</span>
+                <span class="popup-metric-label">${t('popup.voltage')}:</span>
                 <span class="popup-metric-value">${kv} kV</span>
             </div>` : ''}
             ${data.owner || data.operator ? `
             <div class="popup-metric">
-                <span class="popup-metric-label">Owner/Operator:</span>
+                <span class="popup-metric-label">${t('popup.ownerOperator')}:</span>
                 <span class="popup-metric-value">${data.owner || data.operator}</span>
             </div>` : ''}
         </div>
@@ -851,7 +851,7 @@ positionPopup(popup, latlng, _opts = {}) {
         const content = document.getElementById('popup-content');
         
         // Use river_names as the title
-        title.textContent = data.river_names || 'Water Management Area';
+        title.textContent = data.river_names || t('popup.waterManagementArea');
         
         // Map classification to readable text with icons
         const classificationText = {
@@ -874,28 +874,26 @@ positionPopup(popup, latlng, _opts = {}) {
         
         const html = `
             <div class="popup-section">
-                <div class="popup-section-title">Water Management Area Details</div>
+                <div class="popup-section-title">${t('popup.waterManagementAreaDetails')}</div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Water Source:</span>
-                    <span class="popup-metric-value">${data.river_names || 'Unknown'}</span>
+                    <span class="popup-metric-label">${t('popup.waterSource')}:</span>
+                    <span class="popup-metric-value">${data.river_names || t('popup.unknownValue')}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Region:</span>
-                    <span class="popup-metric-value">${data.NAME_1 || 'N/A'}</span>
+                    <span class="popup-metric-label">${t('popup.region')}:</span>
+                    <span class="popup-metric-value">${I18n.regionName(data.NAME_1) || t('results.nA')}</span>
                 </div>
                 <div class="popup-metric">
-                    <span class="popup-metric-label">Water Availability:</span>
+                    <span class="popup-metric-label">${t('popup.waterAvailability')}:</span>
                     <span class="popup-metric-value">${displayClassification}</span>
                 </div>
                 ${data.ID ? `
                 ` : ''}
             </div>
             <div class="popup-section">
-                <div class="popup-section-title">Assessment Status</div>
+                <div class="popup-section-title">${t('popup.assessmentStatus')}</div>
                 <div style="padding: 10px; background: #e3f2fd; border-radius: 4px; border-left: 3px solid #1976d2;">
-                    <strong>Note:</strong> This Water Management Area covers the ${data.NAME_1} region. 
-                    Water source is ${data.river_names}. 
-                    Detailed WMA-based hydrogen production calculations will be available once full resource assessment is complete.
+                    <strong>${t('popup.note')}:</strong> ${t('popup.wmaAssessmentNote', { region: I18n.regionName(data.NAME_1), source: data.river_names })}
                 </div>
             </div>
         `;
@@ -1004,7 +1002,7 @@ positionPopup(popup, latlng, _opts = {}) {
         KZ.ws    ? (rWS  / KZ.ws)    * 100 : 0
     ].map(v => Math.max(0, v));
 
-    const labels = ['PV Output', 'Wind Power Density', 'Mean Wind Speed'];
+    const labels = [t('popup.pvOutput'), t('popup.windPowerDensity'), t('popup.meanWindSpeed')];
 
     // Clean up previous instance
     window.popupCharts ??= {};
@@ -1020,7 +1018,7 @@ positionPopup(popup, latlng, _opts = {}) {
         datasets: [
             // Region bars (each bar its own color)
             {
-            label: 'Region (KZ = 100)',
+            label: t('popup.regionBaseline'),
             data: regIdx,
             backgroundColor: BAR_COLORS,
             borderRadius: 4
@@ -1028,7 +1026,7 @@ positionPopup(popup, latlng, _opts = {}) {
             // 100% KZ baseline (dashed line)
             {
             type: 'line',
-            label: 'Kazakhstan = 100%',
+            label: t('popup.kazakhstanBaseline'),
             data: [100, 100, 100],
             borderColor: '#6b7280',   // neutral gray
             borderDash: [6, 6],
@@ -1049,11 +1047,11 @@ positionPopup(popup, latlng, _opts = {}) {
             callbacks: {
                 // Show both normalized % and raw values
                 label: (c) => {
-                if (c.dataset.type === 'line') return 'Kazakhstan: 100%';
+                if (c.dataset.type === 'line') return t('popup.kazakhstanTooltip');
                 const i = c.dataIndex;
                 const raw = [rPV, rWPD, rWS][i];
-                const units = ['kWh/kWp·yr', 'W/m²', 'm/s'][i];
-                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ  (Region = ${raw.toFixed(2)} ${units})`;
+                const units = ['kWh/kWp/yr', 'W/m2', 'm/s'][i];
+                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ (${t('popup.regionValue')} = ${raw.toFixed(2)} ${units})`;
                 }
             }
             }
@@ -1073,6 +1071,26 @@ positionPopup(popup, latlng, _opts = {}) {
     },
     // helper: finite number or 0
     num0(v) { const n = Number(v); return Number.isFinite(n) ? n : 0; },
+
+    getResourceChartLabels() {
+        return [t('popup.pvOutput'), t('popup.windPowerDensity'), t('popup.meanWindSpeed')];
+    },
+
+    getRegionBaselineLabel() {
+        return t('popup.regionBaseline');
+    },
+
+    getKazakhstanBaselineLabel() {
+        return t('popup.kazakhstanBaseline');
+    },
+
+    getKazakhstanTooltipLabel() {
+        return t('popup.kazakhstanTooltip');
+    },
+
+    getRegionValueLabel() {
+        return t('popup.regionValue');
+    },
 
     // Apples-to-apples normalized comparison (KZ = 100) with dashed 100% line
     createRegionCompareIndexChart(regionalData) {
@@ -1095,7 +1113,7 @@ positionPopup(popup, latlng, _opts = {}) {
         KZ.ws    ? (rWS  / KZ.ws)    * 100 : 0
     ].map(v => Math.max(0, v));
 
-    const labels = ['PV Output', 'Wind Power Density', 'Mean Wind Speed'];
+    const labels = this.getResourceChartLabels();
     const BAR_COLORS = ['#f6c90e', '#0d47a1', '#b71c1c']; // yellow, dark blue, dark red
 
     window.popupCharts ??= {};
@@ -1107,14 +1125,14 @@ positionPopup(popup, latlng, _opts = {}) {
         labels,
         datasets: [
             {
-            label: 'Region (KZ = 100)',
+            label: this.getRegionBaselineLabel(),
             data: regIdx,
             backgroundColor: BAR_COLORS,
             borderRadius: 4
             },
             {
             type: 'line',
-            label: 'Kazakhstan = 100%',
+            label: this.getKazakhstanBaselineLabel(),
             data: [100, 100, 100],
             borderColor: '#6b7280',
             borderDash: [6, 6],
@@ -1134,10 +1152,10 @@ positionPopup(popup, latlng, _opts = {}) {
             tooltip: {
             callbacks: {
                 label: (c) => {
-                if (c.dataset.type === 'line') return 'Kazakhstan: 100%';
+                if (c.dataset.type === 'line') return this.getKazakhstanTooltipLabel();
                 const raw = [rPV, rWPD, rWS][c.dataIndex];
-                const units = ['kWh/kWp·yr', 'W/m²', 'm/s'][c.dataIndex];
-                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ (Region = ${raw.toFixed(2)} ${units})`;
+                const units = ['kWh/kWp/yr', 'W/m2', 'm/s'][c.dataIndex];
+                return `${c.label}: ${c.parsed.y.toFixed(0)}% of KZ (${this.getRegionValueLabel()} = ${raw.toFixed(2)} ${units})`;
                 }
             }
             }
@@ -1162,10 +1180,10 @@ positionPopup(popup, latlng, _opts = {}) {
     const ctx = el.getContext('2d');
 
     const slices = [
-        { label: 'Freshwater',  value: this.num0(regionalData?.freshwater_mln_m3)  },
-        { label: 'Groundwater', value: this.num0(regionalData?.groundwater_mln_m3) },
-        { label: 'Brackish',    value: this.num0(regionalData?.brackish_water_mln_m3) },
-        { label: 'Treated WW',  value: this.num0(regionalData?.wastewater_mln_m3) }
+        { label: t('popup.freshwater'),  value: this.num0(regionalData?.freshwater_mln_m3)  },
+        { label: t('popup.groundwater'), value: this.num0(regionalData?.groundwater_mln_m3) },
+        { label: t('popup.brackishWater'),    value: this.num0(regionalData?.brackish_water_mln_m3) },
+        { label: t('popup.treatedWastewater'),  value: this.num0(regionalData?.wastewater_mln_m3) }
     ].filter(s => s.value > 0);
 
     if (!slices.length) return;

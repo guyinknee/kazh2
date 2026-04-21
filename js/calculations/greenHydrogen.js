@@ -24,11 +24,11 @@ const GreenHydrogenCalculator = {
       treated:     { energy_kWh_per_m3: 0.60, cost_per_m3: 0.70 }
     },
 
-    // RES: LCOE ($/kWh) and emission factor (kgCO2/kWh)
+    // RES: LCOE ($/kWh) and lifecycle carbon benchmark (kgCO2/kgH2)
     res: {
-      solar: { lcoe: 0.045, ef: 0.048 },
-      wind:  { lcoe: 0.040, ef: 0.011 },
-      hydro: { lcoe: 0.050, ef: 0.024 }
+      solar: { lcoe: 0.045, benchmarkCI: 2.05, benchmarkCF: 0.20, benchmarkSEC: 52 },
+      wind:  { lcoe: 0.040, benchmarkCI: 0.75, benchmarkCF: 0.35, benchmarkSEC: 52 },
+      hydro: { lcoe: 0.050, benchmarkCI: 0.30, benchmarkCF: 0.45, benchmarkSEC: 52 }
     },
 
     // System water consumption (L/kg H2)
@@ -59,7 +59,7 @@ const inputs = this.gatherInputs();
     const electrolyzerMW = this.sizeElectrolyzer(h2Limits.actualH2_kg, inputs.elz.SEC, resCalc.capacityFactor);
 
     const economics = this.calculateEconomics(inputs, h2Limits, electrolyzerMW, resCalc);
-    const carbonIntensity = this.calculateCarbonIntensity(inputs, h2Limits);
+    const carbonIntensity = this.calculateCarbonIntensity(inputs, h2Limits, resCalc);
 
     return this.compileResults(inputs, resCalc, h2Limits, electrolyzerMW, economics, carbonIntensity);
   },
@@ -360,11 +360,38 @@ const inputs = this.gatherInputs();
   // ----------------------------
   // Carbon intensity
   // ----------------------------
-  calculateCarbonIntensity(inputs, h2Limits) {
-    const EF = inputs.res.ef; // kgCO2/kWh
-    const CI_elz = EF * inputs.elz.SEC;
-    const CI_water = EF * (h2Limits.waterTreatEnergy_kWh / Math.max(h2Limits.actualH2_kg, 1));
-    return { total: CI_elz + CI_water, electrolyzer: CI_elz, water: CI_water };
+  calculateCarbonIntensity(inputs, h2Limits, resCalc) {
+    const actualH2kg = Math.max(h2Limits.actualH2_kg || 0, 1);
+    const benchmarkCI = inputs.res.benchmarkCI || 2.0;
+    const benchmarkSEC = inputs.res.benchmarkSEC || 52;
+    const benchmarkCF = inputs.res.benchmarkCF || Math.max(resCalc.capacityFactor || 0.25, 0.1);
+    const actualCF = Math.max(resCalc.capacityFactor || benchmarkCF, 0.05);
+
+    const secFactor = this.clamp((inputs.elz.SEC || benchmarkSEC) / benchmarkSEC, 0.75, 1.35);
+    const cfFactor = this.clamp(Math.pow(benchmarkCF / actualCF, 0.35), 0.85, 1.30);
+    const procurementFactor = inputs.procurementMode === 'buy' ? 1.10 : 1.00;
+
+    // Literature indicates electricity dominates while infrastructure is secondary.
+    const benchmarkElectricityShare = benchmarkCI * 0.92;
+    const benchmarkInfrastructureShare = benchmarkCI * 0.08;
+    const electricityCIperKWh = benchmarkElectricityShare / benchmarkSEC;
+    const waterEnergyPerKg = h2Limits.waterTreatEnergy_kWh / actualH2kg;
+
+    const electricity = benchmarkElectricityShare * secFactor * cfFactor * procurementFactor;
+    const water = electricityCIperKWh * waterEnergyPerKg * procurementFactor;
+    const construction = benchmarkInfrastructureShare * this.clamp(Math.pow(benchmarkCF / actualCF, 0.15), 0.90, 1.15);
+    const other = benchmarkCI * 0.01;
+    const total = electricity + water + construction + other;
+
+    return {
+      total,
+      electricity,
+      water,
+      construction,
+      other,
+      sourceBenchmark: benchmarkCI,
+      renewableMean: 2.0
+    };
   },
 
   // ----------------------------
@@ -400,6 +427,9 @@ const inputs = this.gatherInputs();
     const annualCashflow = annualRevenue - annualOpex;
     const npv = this.calculateNPV(economics.totalCapex, annualCashflow, inputs.discountRate, inputs.projectLifetime);
     const paybackPeriod = economics.totalCapex / Math.max(annualCashflow, 1);
+    const annualCO2Emissions = annualH2_t * carbonIntensity.total;
+    const greyBenchmark = 10;
+    const co2Avoided = Math.max(0, annualH2_t * (greyBenchmark - carbonIntensity.total));
 
     return {
       // Core metrics
@@ -407,6 +437,8 @@ const inputs = this.gatherInputs();
       lcohBreakdown: economics.lcohBreakdown,
       carbonIntensity: carbonIntensity.total,
       carbonIntensityBreakdown: carbonIntensity,
+      annualCO2Emissions,
+      co2Avoided,
 
       // Production
       annualProduction: annualH2_t,
@@ -440,7 +472,12 @@ const inputs = this.gatherInputs();
       waterSource: inputs.waterType,
       procurementMode: inputs.procurementMode,
       electricityPriceUsed: (inputs.procurementMode === 'buy') ? inputs.res.lcoe : 0,
-      efElectricityUsed: inputs.res.ef,
+      electricityCarbonBenchmark: inputs.res.benchmarkCI,
+      carbonBenchmarks: {
+        grey: greyBenchmark,
+        renewableMean: carbonIntensity.renewableMean,
+        sourceBenchmark: carbonIntensity.sourceBenchmark
+      },
       h2PriceUsed: inputs.h2Price,
       sizingMode: inputs.sizingMode,
       region: inputs.regionLabel
@@ -460,6 +497,10 @@ const inputs = this.gatherInputs();
     let npv = -initialCost;
     for (let y = 1; y <= years; y++) npv += annualCashflow / Math.pow(1 + r, y);
     return npv;
+  },
+
+  clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
   },
 
   createNoResourceResult(inputs, message) {

@@ -16,27 +16,21 @@ const SidebarManager = {
 
   updateForMode(mode) {
     console.log('Updating sidebar for mode:', mode);
-    this.currentMode = mode;
+    this.currentMode = 'green';
 
     const container = document.getElementById('sidebar-panels');
     if (!container) return;
+    const preservedValues = this.captureFormState(container);
     container.innerHTML = '';
 
-    if (mode === 'green') {
-        container.innerHTML = this.getGreenHydrogenPanels();
-    } else if (mode === 'blue') {
-        container.innerHTML = this.getBlueHydrogenPanels();
-    } else if (mode === 'derivatives') {
-        container.innerHTML = this.getDerivativesPanels();
-    } else {
-        container.innerHTML = '<div class="panel"><p>Mode not supported.</p></div>';
-    }
+    container.innerHTML = this.getGreenHydrogenPanels();
 
     // Append shared economics
     container.innerHTML += this.getEconomicPanel();
 
     // Activate controls/toggles for whichever mode is active
     this.initializeControls();
+    this.restoreFormState(preservedValues);
     },  
 
 
@@ -44,105 +38,105 @@ const SidebarManager = {
   getGreenHydrogenPanels() {
     return `
       <div class="panel green-mode-panel">
-        <h3 class="panel-title">Region & Resources</h3>
+        <h3 class="panel-title">${t('sidebar.regionResources')}</h3>
         <div class="form-group">
-          <label>Select Region</label>
+          <label>${t('sidebar.selectRegion')}</label>
           <select id="region-select">
-            <option value="">All Regions</option>
+            <option value="">${t('sidebar.allRegions')}</option>
             ${this.getRegionOptions()}
           </select>
         </div>
 
         <div class="form-group">
-          <label>Water Type</label>
+          <label>${t('sidebar.waterType')}</label>
           <select id="water-source-type">
-            <option value="freshwater">Freshwater</option>
-            <option value="brackish">Brackish</option>
-            <option value="treated">Treated Wastewater</option>
-            <option value="groundwater">Groundwater</option>
+            <option value="freshwater">${t('sidebar.waterFreshwater')}</option>
+            <option value="brackish">${t('sidebar.waterBrackish')}</option>
+            <option value="treated">${t('sidebar.waterTreated')}</option>
+            <option value="groundwater">${t('sidebar.waterGroundwater')}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Renewable Energy Source</label>
+          <label>${t('sidebar.renewableSource')}</label>
           <select id="renewable-source">
-            <option value="solar">Solar</option>
-            <option value="wind">Wind</option>
-            <option value="hydro">Hydro</option>
+            <option value="solar">${t('sidebar.renewableSolar')}</option>
+            <option value="wind">${t('sidebar.renewableWind')}</option>
+            <option value="hydro">${t('sidebar.renewableHydro')}</option>
           </select>
         </div>
 
         <div class="form-group">
-          <label>Sizing Mode</label>
+          <label>${t('sidebar.sizingMode')}</label>
           <select id="sizing-mode">
-            <option value="max" selected>Max capacity (use region land/points)</option>
-            <option value="custom">Custom capacity (MW)</option>
+            <option value="max" selected>${t('sidebar.sizingMax')}</option>
+            <option value="custom">${t('sidebar.sizingCustom')}</option>
           </select>
         </div>
 
         <div class="form-group" id="custom-capacity-group" style="display:none;">
-          <label>Installed Capacity (MW)</label>
+          <label>${t('sidebar.installedCapacityMw')}</label>
           <input type="number" id="installed-capacity-mw" value="100" min="1" max="100000" step="10">
         </div>
       </div>
 
       <div class="panel green-mode-panel">
-        <h3 class="panel-title">Electrolyzer Configuration</h3>
+        <h3 class="panel-title">${t('sidebar.electrolyzerConfig')}</h3>
         <div class="form-group">
-          <label>Electrolyzer Type</label>
+          <label>${t('sidebar.electrolyzerType')}</label>
           <select id="electrolyzer-type">
-            <option value="PEM">PEM Electrolyzer</option>
-            <option value="Alkaline">Alkaline Electrolyzer</option>
-            <option value="SOEC">Solid Oxide Electrolyzer</option>
+            <option value="PEM">${t('sidebar.elyPem')}</option>
+            <option value="Alkaline">${t('sidebar.elyAlkaline')}</option>
+            <option value="SOEC">${t('sidebar.elySoec')}</option>
           </select>
         </div>
       </div>
 
       <div class="panel green-mode-panel">
-        <h3 class="panel-title">Electricity Procurement</h3>
+        <h3 class="panel-title">${t('sidebar.electricityProcurement')}</h3>
         <div class="form-group">
-          <label>How will electricity be sourced?</label>
+          <label>${t('sidebar.electricitySource')}</label>
           <select id="electricity-procurement">
-            <option value="buy">Buy electricity (grid/PPA)</option>
-            <option value="own">Own new RES (project-owned)</option>
+            <option value="buy">${t('sidebar.electricityBuy')}</option>
+            <option value="own">${t('sidebar.electricityOwn')}</option>
           </select>
         </div>
       </div>
 
       <!-- SHOWN WHEN BUY -->
       <div class="panel green-mode-panel" id="price-panel" style="display:block;">
-        <h3 class="panel-title">Electricity Prices by Source ($/kWh)</h3>
+        <h3 class="panel-title">${t('sidebar.electricityPrices')}</h3>
         <div class="form-group">
-          <label>Solar</label>
+          <label>${t('sidebar.solar')}</label>
           <input type="number" id="solar-lcoe" value="0.045" step="0.001" min="0.005" max="0.50">
         </div>
         <div class="form-group">
-          <label>Wind</label>
+          <label>${t('sidebar.wind')}</label>
           <input type="number" id="wind-lcoe" value="0.040" step="0.001" min="0.005" max="0.50">
         </div>
         <div class="form-group">
-          <label>Hydro</label>
+          <label>${t('sidebar.hydro')}</label>
           <input type="number" id="hydro-lcoe" value="0.050" step="0.001" min="0.005" max="0.50">
         </div>
       </div>
 
       <!-- SHOWN WHEN OWN -->
       <div class="panel green-mode-panel" id="owned-res-panel" style="display:none;">
-        <h3 class="panel-title">Owned RES CAPEX (USD per MW)</h3>
+        <h3 class="panel-title">${t('sidebar.ownedResCapex')}</h3>
         <div class="form-group">
-          <label>Solar CAPEX ($/MW)</label>
+          <label>${t('sidebar.solarCapex')}</label>
           <input type="number" id="owned-solar-capex-permw" value="900000" step="10000" min="300000" max="3000000">
         </div>
         <div class="form-group">
-          <label>Wind CAPEX ($/MW)</label>
+          <label>${t('sidebar.windCapex')}</label>
           <input type="number" id="owned-wind-capex-permw" value="1300000" step="10000" min="500000" max="4000000">
         </div>
         <div class="form-group">
-          <label>Hydro CAPEX ($/MW)</label>
+          <label>${t('sidebar.hydroCapex')}</label>
           <input type="number" id="owned-hydro-capex-permw" value="2500000" step="10000" min="500000" max="8000000">
         </div>
         <div class="form-group">
-          <label>Owned RES Fixed O&M (% of RES CAPEX / year)</label>
+          <label>${t('sidebar.ownedResFixedOm')}</label>
           <input type="number" id="owned-res-fixedom-pct" value="2.0" step="0.1" min="0" max="10">
         </div>
       </div>
@@ -274,32 +268,32 @@ const SidebarManager = {
     return `
     <div class="panel">
     <h3 class="panel-title collapsible-header">
-    Economic Parameters
+    ${t('sidebar.economics')}
     <span class="collapse-icon">▼</span>
     </h3>
     <div class="collapsible-content">
     <div class="form-group">
-    <label>Discount Rate (%)</label>
+    <label>${t('sidebar.discountRate')}</label>
     <input type="number" id="discount-rate" value="8" min="0" max="20" step="0.5">
     </div>
     <div class="form-group">
-    <label>Project Lifetime (years)</label>
+    <label>${t('sidebar.projectLifetime')}</label>
     <input type="number" id="project-lifetime" value="20" min="5" max="50" step="1">
     </div>
     <div class="form-group">
-    <label>Hydrogen Selling Price ($/kg)</label>
+    <label>${t('sidebar.h2Price')}</label>
     <input type="number" id="h2-price" value="7.00" min="0" max="50" step="0.1">
     </div>
     <div class="form-group">
-    <label>Natural Gas Price ($/MMBtu)</label>
+    <label>${t('sidebar.gasPrice')}</label>
     <input type="number" id="gas-price" value="3" min="1" max="10" step="0.5">
     </div>
     <div class="form-group">
-    <label>CAPEX Adjustment Factor (%)</label>
+    <label>${t('sidebar.capexFactor')}</label>
     <input type="number" id="capex-factor" value="0" min="-30" max="30" step="5">
     </div>
     <div class="form-group">
-    <label>OPEX Adjustment Factor (%)</label>
+    <label>${t('sidebar.opexFactor')}</label>
     <input type="number" id="opex-factor" value="0" min="-30" max="30" step="5">
     </div>
     </div>
@@ -313,7 +307,7 @@ const SidebarManager = {
     if (!regions || !regions.features) return '';
     return regions.features.map(f => {
     const name = f.properties.name_en || f.properties.name || f.properties.region_name_en || 'Region';
-    return `<option value="${name}">${name}</option>`;
+    return `<option value="${name}">${I18n.regionName(name)}</option>`;
     }).join('');
     },
     
@@ -335,6 +329,33 @@ const SidebarManager = {
         return sites.map(site => {
             return `<option value="${site.id}">${site.name} (${site.storage_capacity_mt} Mt)</option>`;
         }).join('');
+    },
+
+    captureFormState(container) {
+        const state = {};
+        container.querySelectorAll('input, select').forEach(el => {
+            if (!el.id) return;
+            state[el.id] = el.type === 'checkbox' ? el.checked : el.value;
+        });
+        return state;
+    },
+
+    restoreFormState(state) {
+        if (!state) return;
+        Object.entries(state).forEach(([id, value]) => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            if (el.type === 'checkbox') {
+                el.checked = !!value;
+            } else {
+                el.value = value;
+            }
+        });
+
+        ['sizing-mode', 'electricity-procurement', 'region-select'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.dispatchEvent(new Event('change', { bubbles: true }));
+        });
     },
     
     // Initialize special controls

@@ -411,17 +411,14 @@ const LayersConfig = {
     // Get layers for specific mode
     getLayersForMode(mode) {
         const commonLayers = this.layers.common || [];
-        const modeLayers = this.layers[mode] || [];
-        return [...commonLayers, ...modeLayers];
+        return [...commonLayers, ...(this.layers.green || [])];
     },
     
     // Get layer by ID
     getLayerById(layerId) {
         const allLayers = [
             ...this.layers.common,
-            ...this.layers.green,
-            ...this.layers.blue,
-            ...this.layers.derivatives
+            ...this.layers.green
         ];
         return allLayers.find(layer => layer.id === layerId);
     },

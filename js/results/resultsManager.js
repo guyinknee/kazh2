@@ -35,12 +35,10 @@ const ResultsManager = {
         
         // Update title
         const titles = {
-            green: 'Green Hydrogen Results',
-            blue: 'Blue Hydrogen Results',
-            derivatives: `${results.product ? results.product.charAt(0).toUpperCase() + results.product.slice(1) : 'Derivatives'} Production Results`
+            green: t('results.titleGreen')
         };
         const titleEl = document.getElementById('results-title');
-        if (titleEl) titleEl.textContent = titles[mode];
+        if (titleEl) titleEl.textContent = titles[mode] || t('results.titleGreen');
         
         // Bind tab clicks (robust to .tab or .tab-button markup)
         this.bindTabClicks();
@@ -76,7 +74,7 @@ const ResultsManager = {
             border:1px solid #e5e7eb;border-radius:10px;padding:10px;margin:0 0 20px 0;
             background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.04);
             ">
-            <div style="font-weight:600;font-size:14px;margin-bottom:8px;">Process schematic</div>
+            <div style="font-weight:600;font-size:14px;margin-bottom:8px;">${t('results.processSchematic')}</div>
             <div class="schem-snapshot-wrap" style="
                 line-height:0;               /* removes extra inline SVG space */
                 overflow:hidden;             /* no stray scrollbars */
@@ -122,22 +120,22 @@ const ResultsManager = {
             
             html += `
                 <div class="metric-card">
-                    <div class="metric-label">LCOH</div>
+                    <div class="metric-label">${t('results.lcoh')}</div>
                     <div class="metric-value">$${this.safeNum(results.lcoh, 2)}</div>
                     <div class="metric-unit">/kg H₂</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Annual H₂</div>
+                    <div class="metric-label">${t('results.annualH2')}</div>
                     <div class="metric-value">${this.safeNum(results.annualProduction_kt, 1)}</div>
                     <div class="metric-unit">kt/yr</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Bottleneck</div>
+                    <div class="metric-label">${t('results.bottleneck')}</div>
                     <div class="metric-value" style="font-size: 1.2rem;">${bottleneckDisplay}</div>
-                    <div class="metric-unit">limited</div>
+                    <div class="metric-unit">${t('results.limited')}</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Carbon Intensity</div>
+                    <div class="metric-label">${t('results.carbonIntensity')}</div>
                     <div class="metric-value">${this.safeNum(results.carbonIntensity, 2)}</div>
                     <div class="metric-unit">kg CO₂/kg</div>
                 </div>
@@ -147,31 +145,17 @@ const ResultsManager = {
         
         // KEY DRIVERS Section
         html += '<div class="drivers-section" style="margin-bottom: 20px;">';
-        html += '<h4 style="margin-bottom: 10px;">Key Drivers</h4>';
+        html += `<h4 style="margin-bottom: 10px;">${t('results.keyDrivers')}</h4>`;
         html += '<div class="drivers-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; font-size: 0.9rem;">';
         
         if (mode === 'green') {
             html += `
-                <div>Electricity Price: $${this.safeNum(results.electricityPriceUsed, 3)}/kWh</div>
-                <div>Specific Energy: ${this.safeNum(results.specificEnergy, 1)} kWh/kg</div>
-                <div>Capacity Factor: ${this.safeNum((results.capacityFactor || 0) * 100, 1)}%</div>
-                <div>Water Source: ${results.waterSource || 'N/A'}</div>
-                <div>Sizing Mode: ${results.sizingMode || 'N/A'}</div>
-                <div>Renewable: ${results.renewableSource || 'N/A'}</div>
-            `;
-        } else if (mode === 'blue') {
-            html += `
-                <div>Gas Price: $${this.safeNum(results.gasPrice, 2)}/MMBtu</div>
-                <div>Capture Rate: ${this.safeNum(results.captureRate, 0)}%</div>
-                <div>Plant Capacity: ${this.safeNum(results.plantCapacity, 0)} MW</div>
-                <div>Technology: ${results.technology || 'SMR'}</div>
-            `;
-        } else {
-            html += `
-                <div>H₂ Price: $${this.safeNum(results.h2InputPrice, 2)}/kg</div>
-                <div>Process Efficiency: ${this.safeNum(results.processEfficiency, 1)}%</div>
-                <div>Plant Capacity: ${this.safeNum(results.plantCapacity, 0)} kt/yr</div>
-                <div>Product: ${results.product || 'N/A'}</div>
+                <div>${t('results.electricityPrice')}: $${this.safeNum(results.electricityPriceUsed, 3)}/kWh</div>
+                <div>${t('results.specificEnergy')}: ${this.safeNum(results.specificEnergy, 1)} kWh/kg</div>
+                <div>${t('results.capacityFactor')}: ${this.safeNum((results.capacityFactor || 0) * 100, 1)}%</div>
+                <div>${t('results.waterSource')}: ${this.localizeWaterSource(results.waterSource)}</div>
+                <div>${t('results.sizingMode')}: ${this.localizeSizingMode(results.sizingMode)}</div>
+                <div>${t('results.renewable')}: ${this.localizeRenewable(results.renewableSource)}</div>
             `;
         }
         html += '</div></div>';
@@ -183,10 +167,10 @@ const ResultsManager = {
         html += `
             <div class="chart-container" style="height: 300px;">
                 <div class="chart-title">
-                    ${mode === 'derivatives' ? 'Cost' : 'LCOH'} Breakdown
+                    ${t('results.breakdownTitle')}
                     <div class="chart-options">
-                        <span class="chart-option active" data-chart="doughnut">Pie</span>
-                        <span class="chart-option" data-chart="bar">Bar</span>
+                        <span class="chart-option active" data-chart="doughnut">${t('results.pie')}</span>
+                        <span class="chart-option" data-chart="bar">${t('results.bar')}</span>
                     </div>
                 </div>
                 <div class="chart-wrapper" style="height: 250px; position: relative;">
@@ -196,51 +180,40 @@ const ResultsManager = {
         `;
         
         // Production Limits (H₂ modes) or Market Analysis (derivatives)
-        if (mode !== 'derivatives') {
-            html += `
-                <div class="chart-container" style="height: 300px;">
-                    <div class="chart-title">Production Limits (kt/yr)</div>
-                    <div class="chart-wrapper" style="height: 250px; position: relative;">
-                        <canvas id="limits-chart"></canvas>
-                    </div>
+        html += `
+            <div class="chart-container" style="height: 300px;">
+                <div class="chart-title">${t('results.productionLimits')}</div>
+                <div class="chart-wrapper" style="height: 250px; position: relative;">
+                    <canvas id="limits-chart"></canvas>
                 </div>
-            `;
-        } else {
-            html += `
-                <div class="chart-container" style="height: 300px;">
-                    <div class="chart-title">Market Competitiveness</div>
-                    <div class="chart-wrapper" style="height: 250px; position: relative;">
-                        <canvas id="market-chart"></canvas>
-                    </div>
-                </div>
-            `;
-        }
+            </div>
+        `;
         html += '</div>';
         
         // LIMITS FOOTER (for H₂ modes)
-        if (mode !== 'derivatives' && results.limits) {
+        if (results.limits) {
             html += '<div class="limits-footer" style="background: #f5f5f5; padding: 15px; border-radius: 8px;">';
-            html += '<h4 style="margin-bottom: 10px;">Capacity & Constraints</h4>';
+            html += `<h4 style="margin-bottom: 10px;">${t('results.capacityConstraints')}</h4>`;
             html += '<div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 15px; font-size: 0.9rem;">';
             html += `
                 <div>
-                    <div style="color: #666;">Power Limit</div>
+                    <div style="color: #666;">${t('results.powerLimit')}</div>
                     <div style="font-weight: bold;">${this.safeNum(results.limits.powerLimit_kt, 2)} kt/yr</div>
                 </div>
                 <div>
-                    <div style="color: #666;">Water Limit</div>
+                    <div style="color: #666;">${t('results.waterLimit')}</div>
                     <div style="font-weight: bold;">${this.safeNum(results.limits.waterLimit_kt, 2)} kt/yr</div>
                 </div>
                 <div>
-                    <div style="color: #666;">Installed RES</div>
+                    <div style="color: #666;">${t('results.installedRes')}</div>
                     <div style="font-weight: bold;">${this.safeNum(results.installedCapacityMW, 0)} MW</div>
                 </div>
                 <div>
-                    <div style="color: #666;">Effective RES</div>
+                    <div style="color: #666;">${t('results.effectiveRes')}</div>
                     <div style="font-weight: bold;">${this.safeNum(results.effectiveCapacityMW, 0)} MW</div>
                 </div>
                 <div>
-                    <div style="color: #666;">Electrolyzer</div>
+                    <div style="color: #666;">${t('results.electrolyzer')}</div>
                     <div style="font-weight: bold;">${this.safeNum(results.electrolyzerMW, 0)} MW</div>
                 </div>
             `;
@@ -251,11 +224,7 @@ const ResultsManager = {
         
         // Create charts
         this.createBreakdownChart(results, mode);
-        if (mode !== 'derivatives') {
-            this.createLimitsChart(results);
-        } else {
-            this.createMarketChart(results);
-        }
+        this.createLimitsChart(results);
         
         // Setup chart option listeners
         this.setupChartOptions();
@@ -271,24 +240,24 @@ const ResultsManager = {
         html += '<div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">';
         html += `
             <div class="metric-card">
-                <div class="metric-label">Total CAPEX</div>
+                <div class="metric-label">${t('results.totalCapex')}</div>
                 <div class="metric-value">$${this.safeNum(results.totalCapex, 1)}</div>
                 <div class="metric-unit">Million</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Annual OPEX</div>
+                <div class="metric-label">${t('results.annualOpex')}</div>
                 <div class="metric-value">$${this.safeNum(results.annualOpex, 1)}</div>
                 <div class="metric-unit">M/year</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">NPV @ ${document.getElementById('discount-rate')?.value || 8}%</div>
+                <div class="metric-label">${t('results.npvAt', { rate: document.getElementById('discount-rate')?.value || 8 })}</div>
                 <div class="metric-value">$${this.safeNum(results.npv, 1)}</div>
                 <div class="metric-unit">Million</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Payback Period</div>
+                <div class="metric-label">${t('results.paybackPeriod')}</div>
                 <div class="metric-value">${this.safeNum(results.paybackPeriod, 1)}</div>
-                <div class="metric-unit">years</div>
+                <div class="metric-unit">${t('results.years')}</div>
             </div>
         `;
         html += '</div>';
@@ -299,7 +268,7 @@ const ResultsManager = {
         // CAPEX Breakdown
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">CAPEX Breakdown</div>
+                <div class="chart-title">${t('results.capexBreakdown')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="capex-chart"></canvas>
                 </div>
@@ -309,7 +278,7 @@ const ResultsManager = {
         // OPEX Breakdown
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">Annual OPEX Breakdown</div>
+                <div class="chart-title">${t('results.opexBreakdown')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="opex-chart"></canvas>
                 </div>
@@ -319,7 +288,7 @@ const ResultsManager = {
         // Cash Flow Analysis
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">20-Year Cash Flow Analysis</div>
+                <div class="chart-title">${t('results.cashflow')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="cashflow-chart"></canvas>
                 </div>
@@ -329,7 +298,7 @@ const ResultsManager = {
         // Sensitivity Analysis
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">LCOH Sensitivity Analysis</div>
+                <div class="chart-title">${t('results.sensitivity')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="sensitivity-chart"></canvas>
                 </div>
@@ -361,70 +330,24 @@ const ResultsManager = {
         if (mode === 'green') {
             html += `
                 <div class="metric-card">
-                    <div class="metric-label">Specific Energy</div>
+                    <div class="metric-label">${t('results.specificEnergyLabel')}</div>
                     <div class="metric-value">${this.safeNum(results.specificEnergy, 1)}</div>
                     <div class="metric-unit">kWh/kg</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Water Use</div>
+                    <div class="metric-label">${t('results.waterUse')}</div>
                     <div class="metric-value">${this.safeNum(results.waterConsumption, 1)}</div>
                     <div class="metric-unit">L/kg</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Annual Energy</div>
+                    <div class="metric-label">${t('results.annualEnergy')}</div>
                     <div class="metric-value">${this.safeNum((results.annualEnergyUse || 0) / 1000, 0)}</div>
                     <div class="metric-unit">GWh/yr</div>
                 </div>
                 <div class="metric-card">
-                    <div class="metric-label">Annual Water</div>
+                    <div class="metric-label">${t('results.annualWater')}</div>
                     <div class="metric-value">${this.safeNum((results.annualWaterUse || 0) / 1000, 0)}</div>
                     <div class="metric-unit">k m³/yr</div>
-                </div>
-            `;
-        } else if (mode === 'blue') {
-            html += `
-                <div class="metric-card">
-                    <div class="metric-label">Gas Use</div>
-                    <div class="metric-value">${this.safeNum(results.specificGasConsumption, 2)}</div>
-                    <div class="metric-unit">MMBtu/kg</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Annual Gas</div>
-                    <div class="metric-value">${this.safeNum(results.gasConsumption, 3)}</div>
-                    <div class="metric-unit">BCM/yr</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">CO₂ Capture</div>
-                    <div class="metric-value">${this.safeNum(results.captureRate, 0)}</div>
-                    <div class="metric-unit">%</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Plant Load</div>
-                    <div class="metric-value">${this.safeNum((results.loadFactor || 0) * 100, 1)}</div>
-                    <div class="metric-unit">%</div>
-                </div>
-            `;
-        } else {
-            html += `
-                <div class="metric-card">
-                    <div class="metric-label">H₂ Use</div>
-                    <div class="metric-value">${this.safeNum(results.h2Consumption, 0)}</div>
-                    <div class="metric-unit">t/yr</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">H₂ Intensity</div>
-                    <div class="metric-value">${this.safeNum(results.h2Intensity, 3)}</div>
-                    <div class="metric-unit">t H₂/t product</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Energy Use</div>
-                    <div class="metric-value">${this.safeNum(results.energyConsumption, 1)}</div>
-                    <div class="metric-unit">GWh/yr</div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-label">Conversion</div>
-                    <div class="metric-value">${this.safeNum(results.conversionEfficiency, 1)}</div>
-                    <div class="metric-unit">%</div>
                 </div>
             `;
         }
@@ -436,7 +359,7 @@ const ResultsManager = {
         // Energy Balance (kept)
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">Energy Balance</div>
+                <div class="chart-title">${t('results.energyBalance')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="energy-chart"></canvas>
                 </div>
@@ -459,29 +382,31 @@ const ResultsManager = {
     populateEnvironmentalTab(results, mode) {
         const content = document.getElementById('tab-content');
         
+        const annualEmissionsT = this.getAnnualEmissionsTons(results);
+        const co2AvoidedT = this.getAvoidedCO2Tons(results);
         let html = '<div class="tab-content" id="environmental-content">';
         
         // Environmental Metrics Grid
         html += '<div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 20px;">';
         html += `
             <div class="metric-card">
-                <div class="metric-label">Carbon Intensity</div>
+                <div class="metric-label">${t('results.carbonIntensity')}</div>
                 <div class="metric-value">${this.safeNum(results.carbonIntensity, 2)}</div>
-                <div class="metric-unit">kg CO₂/${mode === 'derivatives' ? 't' : 'kg'}</div>
+                <div class="metric-unit">kg CO₂/kg</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">Annual Emissions</div>
-                <div class="metric-value">${this.safeNum((results.annualCO2Emissions || 0) / 1000, 1)}</div>
+                <div class="metric-label">${t('results.annualEmissions')}</div>
+                <div class="metric-value">${this.safeNum(annualEmissionsT / 1000, 1)}</div>
                 <div class="metric-unit">kt CO₂/yr</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">CO₂ Avoided</div>
-                <div class="metric-value">${this.safeNum((results.co2Avoided || 0) / 1000, 1)}</div>
+                <div class="metric-label">${t('results.co2Avoided')}</div>
+                <div class="metric-value">${this.safeNum(co2AvoidedT / 1000, 1)}</div>
                 <div class="metric-unit">kt CO₂/yr</div>
             </div>
             <div class="metric-card">
-                <div class="metric-label">vs Grey H₂</div>
-                <div class="metric-value">${this.safeNum(((10 - (results.carbonIntensity || 0)) / 10) * 100, 0)}</div>
+                <div class="metric-label">${t('results.vsGrey')}</div>
+                <div class="metric-value">${this.safeNum((((Number(results?.carbonBenchmarks?.grey) || 10) - (results.carbonIntensity || 0)) / (Number(results?.carbonBenchmarks?.grey) || 10)) * 100, 0)}</div>
                 <div class="metric-unit">% reduction</div>
             </div>
         `;
@@ -493,7 +418,7 @@ const ResultsManager = {
         // Emissions Comparison
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">Emissions vs Benchmarks</div>
+                <div class="chart-title">${t('results.emissionsVsBenchmarks')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="emissions-comparison-chart"></canvas>
                 </div>
@@ -503,7 +428,7 @@ const ResultsManager = {
         // Carbon Footprint Breakdown
         html += `
             <div class="chart-container" style="height: 350px;">
-                <div class="chart-title">Carbon Footprint Sources</div>
+                <div class="chart-title">${t('results.carbonSources')}</div>
                 <div class="chart-wrapper" style="height: 300px;">
                     <canvas id="carbon-sources-chart"></canvas>
                 </div>
@@ -557,29 +482,16 @@ const ResultsManager = {
         if (!ctx) return;
         
         let data, labels, colors;
-        
-        if (mode === 'derivatives') {
-            const breakdown = results.costBreakdown || {};
-            labels = ['H₂ Feedstock', 'Other Feedstock', 'Energy', 'Other'];
-            data = [
-                breakdown.h2Feedstock || 40,
-                breakdown.otherFeedstock || 20,
-                breakdown.energy || 25,
-                breakdown.other || 15
-            ];
-            colors = ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
-        } else {
-            const breakdown = results.lcohBreakdown || {};
-            labels = ['CAPEX', 'Fixed O&M', 'Variable O&M', 'Electricity', 'Water'];
-            data = [
-                breakdown.capex || 0,
-                breakdown.fixedOM || 0,
-                breakdown.variableOM || 0,
-                breakdown.electricity || 0,
-                breakdown.water || 0
-            ];
-            colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
-        }
+        const breakdown = results.lcohBreakdown || {};
+        labels = [t('results.capex'), t('results.fixedOm'), t('results.variableOm'), t('results.electricity'), t('results.water')];
+        data = [
+            breakdown.capex || 0,
+            breakdown.fixedOM || 0,
+            breakdown.variableOM || 0,
+            breakdown.electricity || 0,
+            breakdown.water || 0
+        ];
+        colors = ['#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'];
         
         if (this.charts.breakdown) this.charts.breakdown.destroy();
         
@@ -603,9 +515,7 @@ const ResultsManager = {
                         callbacks: {
                             label: (c) => {
                                 const label = c.label || '';
-                                const value = mode === 'derivatives' 
-                                    ? `${c.parsed.toFixed(1)}%` 
-                                    : `$${c.parsed.toFixed(2)}/kg`;
+                                const value = `$${c.parsed.toFixed(2)}/kg`;
                                 const total = c.dataset.data.reduce((a,b)=>a+b,0) || 1;
                                 const pct = ((c.parsed/total)*100).toFixed(1);
                                 return `${label}: ${value} (${pct}%)`;
@@ -632,7 +542,7 @@ const ResultsManager = {
         this.charts.limits = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Power Limit', 'Water Limit', 'Actual Production'],
+                labels: [t('results.powerLimit'), t('results.waterLimit'), t('results.actualProduction')],
                 datasets: [{ data, backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'], borderRadius: 4 }]
             },
             options: {
@@ -650,15 +560,12 @@ const ResultsManager = {
         
         let labels, data;
         if (mode === 'green') {
-            labels = ['Electrolyzer', 'Renewable Energy', 'Balance of Plant'];
+            labels = [t('results.electrolyzer'), t('results.renewableEnergy'), t('results.balanceOfPlant')];
             data = [
                 results.electrolyzerCapex || results.totalCapex * 0.5,
                 results.resCapex || results.totalCapex * 0.3,
                 results.bopCapex || results.totalCapex * 0.2
             ];
-        } else {
-            labels = ['Process Equipment', 'CCS System', 'Infrastructure'];
-            data = [results.totalCapex * 0.5, results.totalCapex * 0.3, results.totalCapex * 0.2];
         }
         
         if (this.charts.capex) this.charts.capex.destroy();
@@ -795,11 +702,8 @@ const ResultsManager = {
         let labels, data;
         if (mode === 'green') {
             const total = results.annualEnergyUse || 100;
-            labels = ['H₂ Production', 'Water Treatment', 'Auxiliaries'];
+            labels = [t('results.h2Production'), t('results.waterTreatment'), t('results.auxiliaries')];
             data = [total * 0.85, total * 0.10, total * 0.05];
-        } else {
-            labels = ['Process Heat', 'Compression', 'CCS', 'Auxiliaries'];
-            data = [40, 25, 20, 15];
         }
         
         if (this.charts.energy) this.charts.energy.destroy();
@@ -815,19 +719,22 @@ const ResultsManager = {
         const ctx = document.getElementById('emissions-comparison-chart');
         if (!ctx) return;
         
-        const labels = ['This Project', 'Grey H₂', 'Blue H₂', 'Green H₂'];
+        const labels = [
+            t('results.thisProject'),
+            t('results.greyH2'),
+            this.localizeRenewableMean()
+        ];
         const data = [
             results.carbonIntensity || 0,
-            10, // Grey benchmark
-            2,  // Blue benchmark
-            0.5 // Green benchmark
+            Number(results?.carbonBenchmarks?.grey) || 10,
+            Number(results?.carbonBenchmarks?.renewableMean) || 2.0
         ];
         
         if (this.charts.emissionsComparison) this.charts.emissionsComparison.destroy();
         
         this.charts.emissionsComparison = new Chart(ctx, {
             type: 'bar',
-            data: { labels, datasets: [{ data, backgroundColor: ['#f59e0b', '#ef4444', '#3b82f6', '#10b981'] }] },
+            data: { labels, datasets: [{ data, backgroundColor: ['#f59e0b', '#ef4444', '#10b981'] }] },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
@@ -842,14 +749,14 @@ const ResultsManager = {
         if (!ctx) return;
         
         let labels, data;
-        if (mode === 'green') {
-            labels = ['Electricity', 'Water Treatment', 'Construction', 'Other'];
-            const total = results.carbonIntensity || 1;
-            data = [total * 0.7, total * 0.1, total * 0.15, total * 0.05];
-        } else {
-            labels = ['Natural Gas', 'Process', 'Fugitive', 'Electricity'];
-            data = [5, 2, 1, 0.5];
-        }
+        labels = [t('results.electricity'), t('results.waterTreatment'), t('results.construction'), t('results.other')];
+        const breakdown = results.carbonIntensityBreakdown || {};
+        data = [
+            breakdown.electricity || 0,
+            breakdown.water || 0,
+            breakdown.construction || 0,
+            breakdown.other || 0
+        ];
         
         if (this.charts.carbonSources) this.charts.carbonSources.destroy();
         
@@ -879,7 +786,61 @@ const ResultsManager = {
     // Helper function for safe number display
     safeNum(value, decimals = 2) {
         const num = Number(value);
-        return isFinite(num) ? num.toFixed(decimals) : '--';
+        return isFinite(num) ? num.toFixed(decimals) : t('results.noValue');
+    },
+
+    getAnnualEmissionsTons(results) {
+        if (Number.isFinite(results?.annualCO2Emissions)) return Number(results.annualCO2Emissions);
+        const annualProductionTons = Number(results?.annualProduction);
+        const carbonIntensity = Number(results?.carbonIntensity);
+        if (Number.isFinite(annualProductionTons) && Number.isFinite(carbonIntensity)) {
+            return Math.max(0, annualProductionTons * carbonIntensity);
+        }
+        return 0;
+    },
+
+    getAvoidedCO2Tons(results) {
+        if (Number.isFinite(results?.co2Avoided)) return Number(results.co2Avoided);
+        const annualProductionTons = Number(results?.annualProduction);
+        const carbonIntensity = Number(results?.carbonIntensity);
+        if (Number.isFinite(annualProductionTons) && Number.isFinite(carbonIntensity)) {
+            return Math.max(0, annualProductionTons * (10 - carbonIntensity));
+        }
+        return 0;
+    },
+
+    localizeWaterSource(value) {
+        const map = {
+            freshwater: 'sidebar.waterFreshwater',
+            brackish: 'sidebar.waterBrackish',
+            treated: 'sidebar.waterTreated',
+            groundwater: 'sidebar.waterGroundwater'
+        };
+        return map[value] ? t(map[value]) : (value || t('results.nA'));
+    },
+
+    localizeRenewable(value) {
+        const map = {
+            solar: 'sidebar.renewableSolar',
+            wind: 'sidebar.renewableWind',
+            hydro: 'sidebar.renewableHydro'
+        };
+        return map[value] ? t(map[value]) : (value || t('results.nA'));
+    },
+
+    localizeSizingMode(value) {
+        const map = {
+            max: 'sidebar.sizingMax',
+            custom: 'sidebar.sizingCustom'
+        };
+        return map[value] ? t(map[value]) : (value || t('results.nA'));
+    },
+
+    localizeRenewableMean() {
+        const lang = I18n.getLanguage();
+        if (lang === 'ru') return 'Средний Green H2';
+        if (lang === 'kk') return 'Орташа Green H2';
+        return 'Average Green H2';
     }
 };
 

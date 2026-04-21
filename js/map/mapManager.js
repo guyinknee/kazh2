@@ -791,7 +791,8 @@ createPolylineLayer(config) {
         
         // Add tooltip
         if (feature.properties && feature.properties.name_en || feature.properties && feature.properties.name) {
-            layer.bindTooltip(feature.properties.name_en || feature.properties.name, {
+            const featureName = feature.properties.name_en || feature.properties.name;
+            layer.bindTooltip(I18n.regionName(featureName), {
                 permanent: false,
                 direction: 'center'
             });
@@ -1022,30 +1023,30 @@ const LegendManager = {
         if (wmaLayerActive) {
             html += `
                 <div class="legend-section">
-                    <div class="legend-subtitle">Water Availability</div>
+                    <div class="legend-subtitle">${t('legend.waterAvailability')}</div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #1e88e5; opacity: 0.6;"></div>
-                        <div class="legend-label">Available / High Volume</div>
+                        <div class="legend-label">${t('legend.available')}</div>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #66bb6a; opacity: 0.6;"></div>
-                        <div class="legend-label">Medium Available</div>
+                        <div class="legend-label">${t('legend.medium')}</div>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #ffa726; opacity: 0.6;"></div>
-                        <div class="legend-label">Limited Available</div>
+                        <div class="legend-label">${t('legend.limited')}</div>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #ef5350; opacity: 0.6;"></div>
-                        <div class="legend-label">No Available Water</div>
+                        <div class="legend-label">${t('legend.none')}</div>
                     </div>
                     <div class="legend-item">
                         <div class="legend-color" style="background-color: #bdbdbd; opacity: 0.3; border-style: dashed;"></div>
-                        <div class="legend-label">No Data</div>
+                        <div class="legend-label">${t('legend.noData')}</div>
                     </div>
                 </div>
                 <div style="margin-top: 10px; padding: 8px; background: #f5f5f5; border-radius: 4px; font-size: 11px; color: #666;">
-                    <strong>Source:</strong> River basins and water bodies
+                    <strong>${t('legend.source')}</strong> ${t('legend.sourceValue')}
                 </div>
             `;
         }

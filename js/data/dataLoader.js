@@ -78,6 +78,7 @@ const DataLoader = {
         AppState.data.groundwaterAccess = await this.loadCSV('groundwater_access.csv');
         AppState.data.wastewaterPlants = await this.loadCSV('wastewater_plants.csv');
         AppState.data.h2Projects = await this.loadCSV('h2_projects.csv');
+        AppState.data.h2Projects = (AppState.data.h2Projects || []).filter(project => !project.type || project.type === 'green');
         
         // Blue Hydrogen Data
         AppState.data.oilGasFields = await this.loadCSV('oil_gas_fields.csv');

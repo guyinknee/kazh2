@@ -104,14 +104,14 @@ header {
     gap: 15px;
 }
 
-.access-toggle {
+.language-toggle {
     display: flex;
     background-color: rgba(255, 255, 255, 0.2);
     border-radius: 20px;
     padding: 3px;
 }
 
-.access-toggle button {
+.language-toggle button {
     background: none;
     border: none;
     color: white;
@@ -121,9 +121,21 @@ header {
     transition: all 0.3s ease;
 }
 
-.access-toggle button.active {
+.language-toggle button.active {
     background-color: white;
     color: var(--primary);
+}
+
+.mode-badge {
+    margin: 12px 10px 0;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: #e8f5e9;
+    color: #1b5e20;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    border: 1px solid #c8e6c9;
 }
 
 /* Main Content */

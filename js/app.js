@@ -5,7 +5,7 @@
 
 // Global Application State
 window.AppState = {
-    mode: 'green', // 'green', 'blue', or 'derivatives'
+    mode: 'green',
     selectedRegion: null,
     selectedPoint: null,
     mapLayers: {},
@@ -29,22 +29,6 @@ window.AppState = {
             loadFactor: 40,
             waterType: 'river'
         },
-        // Blue Hydrogen Inputs
-        blueH2: {
-            field: null,
-            technology: 'SMR',
-            captureRate: 90,
-            capacity: 100,
-            loadFactor: 85
-        },
-        // Derivatives Inputs
-        derivatives: {
-            hydrogenSource: 'green',
-            product: 'ammonia',
-            capacity: 100,
-            loadFactor: 90
-        },
-        // Economic Parameters
         economic: {
             discountRate: 10,
             projectLifetime: 25,
@@ -67,8 +51,8 @@ const Loading = (() => {
     if (txt() && msg) txt().textContent = msg;
   }
   function step(msg, delta) { set(msg, pct + delta); }
-  function show() { el()?.classList.remove('loader-hidden'); set('Starting…', 0); }
-  function hide() { set('Done', 100); setTimeout(() => el()?.classList.add('loader-hidden'), 150); }
+  function show() { el()?.classList.remove('loader-hidden'); set(t('loading.starting'), 0); }
+  function hide() { set(t('loading.done'), 100); setTimeout(() => el()?.classList.add('loader-hidden'), 150); }
   return { set, step, show, hide };
 })();
 
@@ -80,29 +64,29 @@ window.KHTStart = async function KHTStart() {
   console.log('Initializing Kazakhstan Hydrogen Interactive Tool...');
   Loading.show();
   try {
-    Loading.set('Preparing map…', 10);
+    Loading.set(t('loading.preparingMap'), 10);
     await MapManager.initialize();
-    Loading.set('Loading datasets…', 30);
+    Loading.set(t('loading.loadingDatasets'), 30);
 
     // If DataLoader exposes fine-grained events later, map them here.
     await DataLoader.loadAllData();
-    Loading.set('Building UI…', 65);
+    Loading.set(t('loading.buildingUI'), 65);
 
     SidebarManager.initialize();
     ResultsManager.initialize();
     // Initialize live schematics
     if (window.SchematicsManager) SchematicsManager.initialize();
 
-    Loading.set('Rendering first view…', 80);
+    Loading.set(t('loading.renderingView'), 80);
     switchMode('green');
     setupEventListeners();
     updateLayerControls('green');
 
-    Loading.set('Finalizing…', 95);
+    Loading.set(t('loading.finalizing'), 95);
     console.log('Application initialized successfully');
   } catch (error) {
     console.error('Error initializing application:', error);
-    alert('Error loading application. Please refresh the page.');
+    alert(t('alerts.appLoadError'));
   } finally {
     Loading.hide();
   }
@@ -110,14 +94,6 @@ window.KHTStart = async function KHTStart() {
 
 // Setup Event Listeners
 function setupEventListeners() {
-    // Hydrogen mode toggle
-    document.querySelectorAll('.hydrogen-toggle button').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const mode = this.dataset.mode;
-            switchMode(mode);
-        });
-    });
-    
     // Calculate button
     document.getElementById('calculate-btn').addEventListener('click', performCalculation);
     
@@ -306,33 +282,27 @@ document.getElementById('sidebar-panels').addEventListener('change', function(e)
         }   );
         }
 
-// Switch Mode (Green, Blue, Derivatives)
 function switchMode(mode) {
+    const resolvedMode = 'green';
     try {
-    SchematicsManager.setMode(mode);
+    SchematicsManager.setMode(resolvedMode);
     SchematicsManager.setState({ regionLabel: null, gasFieldLabel: null });
     SchematicsManager.hide();
     PopupManager.hide();
     } catch {}
-    console.log('Switching to mode:', mode);
+    console.log('Switching to mode:', resolvedMode);
     
     // Update state
-    AppState.mode = mode;
-    
-    // Update UI
-    document.querySelectorAll('.hydrogen-toggle button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+    AppState.mode = resolvedMode;
     
     // Update sidebar
-    SidebarManager.updateForMode(mode);
+    SidebarManager.updateForMode(resolvedMode);
     
     // Update map layers
-    MapManager.updateLayersForMode(mode);
+    MapManager.updateLayersForMode(resolvedMode);
     
     // Update layer controls
-    updateLayerControls(mode);
+    updateLayerControls(resolvedMode);
     
     // Clear previous results
     document.getElementById('results-panel').style.display = 'none';
@@ -344,14 +314,7 @@ function switchMode(mode) {
 
 // --- Action area guard: show helper pill until a selection exists ---
 function hasValidSelection() {
-  if (AppState.mode === 'green') {
-    return !!AppState.selectedRegion;
-  } else if (AppState.mode === 'blue') {
-    // treat either selectedPoint (map) or dropdown value as selection
-    const sel = document.getElementById('gas-field-select');
-    return !!AppState.selectedPoint || (sel && sel.value);
-  }
-  return true; // derivatives or others: allow
+  return !!AppState.selectedRegion;
 }
 
 function updateActionArea() {
@@ -361,8 +324,7 @@ function updateActionArea() {
   if (!calcBtn || !resetBtn || !helper) return;
 
   const ok = hasValidSelection();
-  const msg = AppState.mode === 'green' ? 'Choose a region to Calculate' :
-              (AppState.mode === 'blue' ? 'Choose a field to Calculate' : '');
+  const msg = t('helper.chooseRegion');
 
 if (ok) {
     helper.style.display = 'none';
@@ -381,7 +343,7 @@ if (ok) {
 (function selectionPoller(){
   let lastKey = '';
   setInterval(() => {
-    const key = `${AppState.mode}|${!!AppState.selectedRegion}|${!!AppState.selectedPoint}`;
+    const key = `${AppState.mode}|${!!AppState.selectedRegion}`;
     if (key !== lastKey) {
       lastKey = key;
       updateActionArea();
@@ -412,7 +374,7 @@ function updateLayerControls(mode) {
         
         const categoryTitle = document.createElement('div');
         categoryTitle.className = 'layer-category-title';
-        categoryTitle.textContent = category;
+        categoryTitle.textContent = I18n.categoryName(category);
         categoryDiv.appendChild(categoryTitle);
         
         categories[category].forEach(layer => {
@@ -426,7 +388,7 @@ function updateLayerControls(mode) {
                 groupHeader.className = 'layer-group-header';
                 groupHeader.innerHTML = `
                     <span class="expand-icon ${layer.defaultExpanded ? 'expanded' : ''}">▶</span>
-                    <span class="group-name">${layer.name}</span>
+                    <span class="group-name">${I18n.layerName(layer.id, layer.name)}</span>
                 `;
                 
                 // Create sublayers container
@@ -480,6 +442,7 @@ function createLayerItem(layer, isSublayer = false) {
                min="0" max="100" value="100" 
                id="opacity-${layer.id}">
     `;
+    layerItem.querySelector('.layer-label').textContent = I18n.layerName(layer.id, layer.name);
     
     // Add event listeners
     const checkbox = layerItem.querySelector('.layer-checkbox');
@@ -545,7 +508,7 @@ async function performCalculation() {
     // Validate inputs (Green-safe)
     const ok = validateInputs();
     if (!ok) {
-      alert('Please check your input parameters');
+      alert(t('alerts.checkInputs'));
       console.warn('[KHT] validateInputs() returned false');
       return;
     }
@@ -553,22 +516,10 @@ async function performCalculation() {
     const params = collectParameters();
     let results;
 
-    switch (AppState.mode) {
-      case 'green':
-        if (typeof GreenHydrogenCalculator === 'undefined' || !GreenHydrogenCalculator.calculate) {
-            throw new Error('GreenHydrogenCalculator is not available.');
-            }
-        results = await GreenHydrogenCalculator.calculate(params);
-        break;
-      case 'blue':
-        results = await BlueHydrogenCalculator.calculate(params);
-        break;
-      case 'derivatives':
-        results = await DerivativesCalculator.calculate(params);
-        break;
-      default:
-        throw new Error('Unknown mode: ' + AppState.mode);
+    if (typeof GreenHydrogenCalculator === 'undefined' || !GreenHydrogenCalculator.calculate) {
+      throw new Error('GreenHydrogenCalculator is not available.');
     }
+    results = await GreenHydrogenCalculator.calculate(params);
 
     if (!results || typeof results !== 'object') {
       throw new Error('Calculation returned no results.');
@@ -602,7 +553,7 @@ function validateInputs() {
     if (!hasRegion) {
       console.warn('[KHT] No region selected. Blocking calculation.');
       const helper = document.getElementById('action-helper');
-      if (helper) { helper.textContent = 'Choose a region to Calculate'; helper.style.display = 'flex'; helper.classList.add('shake'); }
+      if (helper) { helper.textContent = t('helper.chooseRegion'); helper.style.display = 'flex'; helper.classList.add('shake'); }
       return false;
     }
     const resSel = document.getElementById('renewable-source');
@@ -617,16 +568,7 @@ function validateInputs() {
     return true;
   }
 
-  if (mode === 'blue') {
-    const hasField = !!AppState.selectedPoint || !!document.getElementById('gas-field-select')?.value;
-    if (!hasField) {
-      console.warn('[KHT] No field selected. Blocking calculation.');
-      const helper = document.getElementById('action-helper');
-      if (helper) { helper.textContent = 'Choose a field to Calculate'; helper.style.display = 'flex'; helper.classList.add('shake'); }
-      return false;
-    }
-  }
-  return true; // for other modes keep permissive
+  return true;
 }
 
 // Collect Parameters
@@ -704,7 +646,7 @@ function switchTab(tabName) {
 // Export Results
 async function exportResults(format) {
     if (!AppState.results) {
-        alert('No results to export. Please perform a calculation first.');
+        alert(t('alerts.noResultsExport'));
         return;
     }
     
@@ -725,14 +667,14 @@ async function exportResults(format) {
 async function exportToPDF() {
     // TODO: Implement PDF export using jsPDF or similar library
     console.log('Exporting to PDF...');
-    alert('PDF export will be implemented with jsPDF library');
+    alert(t('alerts.pdfPending'));
 }
 
 // Export to Excel
 async function exportToExcel() {
     // TODO: Implement Excel export using SheetJS or similar
     console.log('Exporting to Excel...');
-    alert('Excel export will be implemented with SheetJS library');
+    alert(t('alerts.excelPending'));
 }
 
 // Export to JSON
@@ -802,4 +744,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // wait for the auth overlay to dispatch this event
     window.addEventListener('kht:auth', () => window.KHTStart(), { once: true });
   }
+});
+
+document.addEventListener('kht:languagechange', () => {
+  updateActionArea();
+  SidebarManager.updateForMode('green');
+  updateLayerControls('green');
+  if (AppState.results) ResultsManager.displayResults(AppState.results, 'green');
+  try { SchematicsManager.update(); } catch {}
+  try { LegendManager.update('green'); } catch {}
+  try {
+    if (PopupManager.currentPopup && PopupManager.currentLatLng) {
+      PopupManager.showPopup(PopupManager.currentPopup.data, PopupManager.currentPopup.config, PopupManager.currentLatLng);
+    }
+  } catch {}
 });

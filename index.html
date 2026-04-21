@@ -102,9 +102,9 @@
             padding: 22px 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.35);
         ">
-            <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px;">Kazakhstan Hydrogen Tool</div>
-            <div style="font-size: 13px; color: #555; margin-bottom: 14px;">Enter password to continue</div>
-            <input id="auth-password" type="password" placeholder="Password" autocomplete="current-password" style="
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 6px;" data-i18n="app.shortTitle">Kazakhstan Hydrogen Interactive Tool</div>
+            <div style="font-size: 13px; color: #555; margin-bottom: 14px;" data-i18n="auth.enterPassword">Enter password to continue</div>
+            <input id="auth-password" type="password" placeholder="Password" data-i18n-placeholder="auth.passwordPlaceholder" autocomplete="current-password" style="
                 width: 100%;
                 padding: 10px 12px;
                 border: 1px solid #ddd;
@@ -112,7 +112,7 @@
                 font-size: 14px;
                 outline: none;
             " />
-            <div id="auth-error" style="display:none; margin-top:8px; color:#b00020; font-size: 13px;">
+            <div id="auth-error" style="display:none; margin-top:8px; color:#b00020; font-size: 13px;" data-i18n="auth.incorrectPassword">
                 Incorrect password. Try again.
             </div>
             <button id="auth-submit" style="
@@ -126,18 +126,18 @@
                 background: #1f6feb;
                 color: white;
                 cursor: pointer;
-            ">Unlock</button>
+            " data-i18n="auth.unlock">Unlock</button>
         </div>
     </div>
 
 <!-- Loading Overlay -->
 <div id="app-loader" class="loader-overlay" aria-live="polite">
   <div class="loader-card">
-    <div class="loader-title">Loading Kazakhstan Hydrogen Tool…</div>
+    <div class="loader-title" data-i18n="loading.title">Loading Kazakhstan Hydrogen Interactive Tool…</div>
     <div class="loader-bar">
       <div class="loader-bar-fill" id="loader-bar-fill" style="width: 0%"></div>
     </div>
-    <div class="loader-status" id="loader-status">Starting…</div>
+    <div class="loader-status" id="loader-status" data-i18n="loading.starting">Starting…</div>
   </div>
 </div>
     <div class="app-container">
@@ -147,12 +147,13 @@
                 <div class="logo">
                     <img src="assets/icons/logo.png" alt="Logo" />
                 </div>
-                <h1 class="title">Kazakhstan Hydrogen Interactive Tool</h1>
+                <h1 class="title" data-i18n="app.title">Kazakhstan Hydrogen Interactive Tool</h1>
             </div>
             <div class="user-controls">
-                <div class="access-toggle">
-                    <button class="active">Public Access</button>
-                    <button>Company Access</button>
+                <div class="language-toggle" aria-label="Language switch">
+                    <button data-lang="kk" data-i18n="language.kk">KK</button>
+                    <button class="active" data-lang="en" data-i18n="language.en">EN</button>
+                    <button data-lang="ru" data-i18n="language.ru">RU</button>
                 </div>
             </div>
         </header>
@@ -163,12 +164,7 @@
             <div id="schematics-panel" class="schem-panel"></div>
             <!-- Sidebar -->
             <div class="sidebar" id="sidebar">
-                <!-- Hydrogen Type Toggle -->
-                <div class="hydrogen-toggle">
-                    <button class="green active" data-mode="green">Green H₂</button>
-                    <button class="blue" data-mode="blue">Blue H₂</button>
-                    <button class="yellow" data-mode="derivatives">Derivatives</button>
-                </div>
+                <div class="mode-badge" data-i18n="sidebar.greenOnly">Green H₂</div>
                 
                 <!-- Dynamic Panels Container -->
                 <div id="sidebar-panels">
@@ -178,9 +174,9 @@
 
                 <!-- Action Buttons -->
                 <div class="action-buttons" id="action-area">
-                  <div id="action-helper" class="action-helper-pill" role="status" aria-live="polite" style="display:flex">Choose a region to Calculate</div>
-                  <button class="primary-btn" id="calculate-btn" style="display:none">Calculate Results</button>  
-                  <button class="secondary-btn" id="reset-btn" style="display:none">Reset</button>
+                  <div id="action-helper" class="action-helper-pill" role="status" aria-live="polite" style="display:flex" data-i18n="helper.chooseRegion">Choose a region to Calculate</div>
+                  <button class="primary-btn" id="calculate-btn" style="display:none" data-i18n="buttons.calculate">Calculate Results</button>  
+                  <button class="secondary-btn" id="reset-btn" style="display:none" data-i18n="buttons.reset">Reset</button>
                 </div>
 
             </div>
@@ -190,17 +186,17 @@
                 <!-- Map Controls -->
                 <div class="map-controls">
                     <div class="control-group">
-                        <button class="control-btn" id="zoom-in-btn" title="Zoom In">+</button>
-                        <button class="control-btn" id="zoom-out-btn" title="Zoom Out">−</button>
-                        <button class="control-btn" id="layers-btn" title="Layers">☰</button>
-                        <button class="control-btn" id="reset-view-btn" title="Reset View">⌂</button>
+                        <button class="control-btn" id="zoom-in-btn" title="Zoom In" data-i18n-title="map.zoomIn">+</button>
+                        <button class="control-btn" id="zoom-out-btn" title="Zoom Out" data-i18n-title="map.zoomOut">−</button>
+                        <button class="control-btn" id="layers-btn" title="Layers" data-i18n-title="map.layersButton">☰</button>
+                        <button class="control-btn" id="reset-view-btn" title="Reset View" data-i18n-title="map.resetView">⌂</button>
                     </div>
                 </div>
                 
                 <!-- Layers Panel -->
                 <div class="layers-panel" id="layers-panel">
                     <div class="layers-header">
-                        <span>Map Layers</span>
+                        <span data-i18n="map.layers">Map Layers</span>
                         <button class="close-btn" id="close-layers">×</button>
                     </div>
                     <div class="layers-content" id="layers-content">
@@ -224,7 +220,7 @@
 
                 <div class="map-legend" id="map-legend" style="display: none;">
                     <div class="legend-header">
-                        <span class="legend-title">Legend</span>
+                        <span class="legend-title" data-i18n="map.legend">Legend</span>
                         <button class="legend-toggle" id="legend-toggle">−</button>
                     </div>
                     <div class="legend-content" id="legend-content">
@@ -235,15 +231,15 @@
                 <!-- Results Panel -->
                 <div class="results-panel" id="results-panel" style="display: none;">
                     <div class="results-heading">
-                        <h3 id="results-title">Results</h3>
+                        <h3 id="results-title" data-i18n="results.titleGreen">Results</h3>
                         <button class="close-btn" id="close-results">×</button>
                     </div>
                     
                     <div class="tabs">
-                        <div class="tab active" data-tab="summary">Summary</div>
-                        <div class="tab" data-tab="economics">Economics</div>
-                        <div class="tab" data-tab="technical">Technical</div>
-                        <div class="tab" data-tab="environmental">Environmental</div>
+                        <div class="tab active" data-tab="summary" data-i18n="tabs.summary">Summary</div>
+                        <div class="tab" data-tab="economics" data-i18n="tabs.economics">Economics</div>
+                        <div class="tab" data-tab="technical" data-i18n="tabs.technical">Technical</div>
+                        <div class="tab" data-tab="environmental" data-i18n="tabs.environmental">Environmental</div>
                     </div>
                     
                     <div class="tab-content" id="tab-content">
@@ -252,9 +248,9 @@
                     
                     <!-- Export Buttons -->
                     <div class="export-buttons">
-                        <button class="export-btn" id="export-pdf">Export PDF</button>
-                        <button class="export-btn" id="export-excel">Export Excel</button>
-                        <button class="export-btn" id="export-data">Export Data</button>
+                        <button class="export-btn" id="export-pdf" data-i18n="buttons.exportPdf">Export PDF</button>
+                        <button class="export-btn" id="export-excel" data-i18n="buttons.exportExcel">Export Excel</button>
+                        <button class="export-btn" id="export-data" data-i18n="buttons.exportData">Export Data</button>
                     </div>
                 </div>
             </div>
@@ -266,12 +262,11 @@
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.0/papaparse.min.js"></script>
     
     <!-- data & utils FIRST -->
+    <script src="js/i18n.js"></script>
     <script src="js/data/dataLoader.js"></script>
 
     <!-- calculators that may use DataLoader -->
     <script src="js/calculations/greenHydrogen.js"></script>
-    <script src="js/calculations/blueHydrogen.js"></script>
-    <script src="js/calculations/derivatives.js"></script>
 
     <!-- map & UI -->
     <script src="js/map/popupManager.js"></script>
