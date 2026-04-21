@@ -699,7 +699,7 @@ const I18n = {
       tabs: {
         summary: 'Жиынтық',
         economics: 'Экономика',
-        technical: 'Техника',
+        technical: 'Технология',
         environmental: 'Экология'
       },
       results: {
