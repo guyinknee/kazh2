@@ -31,17 +31,20 @@ const MapManager = {
         console.log('Map initialized');
     },
     
-    // Add base map layer
+    // Add base map layer (config lives in layersConfig.js → BASEMAP)
     addBaseMap() {
-        const baseMap = L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-            subdomains: 'abcd',
-            maxZoom: 20
+        const cfg = LayersConfig.basemap;
+        if (!cfg.apiKey || cfg.apiKey === 'YOUR_CARTO_KEY') {
+        console.warn('Basemap: no CARTO key set in js/map/layersConfig.js — tiles will not load.');
+        }
+        const baseMap = L.tileLayer(cfg.url, {
+        attribution: cfg.attribution,
+        maxZoom: cfg.maxZoom
         });
         
         baseMap.addTo(this.map);
         this.layers['basemap'] = baseMap;
-    },
+        },
     
     // Setup map controls
     setupControls() {
@@ -793,7 +796,7 @@ createPolylineLayer(config) {
     createTileLayer(config) {
         return L.tileLayer(config.url, {
             attribution: config.attribution,
-            maxZoom: 20
+            maxZoom: config.maxZoom || 20
         });
     },
     
