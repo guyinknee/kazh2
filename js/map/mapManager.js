@@ -35,16 +35,16 @@ const MapManager = {
     addBaseMap() {
         const cfg = LayersConfig.basemap;
         if (!cfg.apiKey || cfg.apiKey === 'YOUR_CARTO_KEY') {
-        console.warn('Basemap: no CARTO key set in js/map/layersConfig.js — tiles will not load.');
+            console.warn('Basemap: no CARTO key set in js/map/layersConfig.js — tiles will not load.');
         }
         const baseMap = L.tileLayer(cfg.url, {
-        attribution: cfg.attribution,
-        maxZoom: cfg.maxZoom
+            attribution: cfg.attribution,
+            maxZoom: cfg.maxZoom
         });
         
         baseMap.addTo(this.map);
         this.layers['basemap'] = baseMap;
-        },
+    },
     
     // Setup map controls
     setupControls() {

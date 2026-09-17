@@ -2,15 +2,24 @@
  * Layers Configuration Module
  * Defines all map layers and their properties
  */
+
+// ---------------------------------------------------------------------------
+// Basemap (CARTO Positron — muted light-gray canvas, English labels)
+// CARTO now requires a key for its basemaps. Get a free one (5M tiles/month,
+// no account needed, emailed instantly) at https://dashboard.basemaps.carto.com/
+// and paste it below. Styles: 'light_all' (Positron), 'voyager_labels_under',
+// 'dark_all'. Attribution to CARTO + OpenStreetMap must remain on the map.
+// ---------------------------------------------------------------------------
 const BASEMAP = {
-apiKey: 'cb1_3oh8_1_a47ee9f558cd5060b46cfd27',
-style: 'light_all',
-maxZoom: 20,
-attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
-get url() {
-return `basemaps.cartocdn.com/rastertiles/${this.style}/{z}/{x}/{y}{r}.png?key=${this.apiKey}`;
-}
+    apiKey: 'cb1_3oh8_1_a47ee9f558cd5060b46cfd27',
+    style: 'light_all',
+    maxZoom: 20,
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+    get url() {
+        return `https://basemaps.cartocdn.com/rastertiles/${this.style}/{z}/{x}/{y}{r}.png?key=${this.apiKey}`;
+    }
 };
+
 const LayersConfig = {
     basemap: BASEMAP,
     // Layer definitions for each mode
@@ -24,7 +33,7 @@ const LayersConfig = {
                 type: 'tile',
                 defaultVisible: true,
                 url: BASEMAP.url,
-                attribution: 'BASEMAP.attribution'
+                attribution: BASEMAP.attribution
             },
             {
                 id: 'demand-points',
