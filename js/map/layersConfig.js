@@ -2,7 +2,15 @@
  * Layers Configuration Module
  * Defines all map layers and their properties
  */
-
+const BASEMAP = {
+apiKey: 'cb1_3oh8_1_a47ee9f558cd5060b46cfd27',
+style: 'light_all',
+maxZoom: 20,
+attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors © <a href="https://carto.com/attributions">CARTO</a>',
+get url() {
+return `basemaps.cartocdn.com/rastertiles/${this.style}/{z}/{x}/{y}{r}.png?key=${this.apiKey}`;
+}
+};
 const LayersConfig = {
     // Layer definitions for each mode
     layers: {
