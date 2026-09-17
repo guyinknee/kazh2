@@ -12,6 +12,7 @@ return `basemaps.cartocdn.com/rastertiles/${this.style}/{z}/{x}/{y}{r}.png?key=$
 }
 };
 const LayersConfig = {
+    basemap: BASEMAP,
     // Layer definitions for each mode
     layers: {
         // Common layers (available in all modes)
@@ -22,8 +23,8 @@ const LayersConfig = {
                 category: 'Base Layers',
                 type: 'tile',
                 defaultVisible: true,
-                url: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager_labels_under/{z}/{x}/{y}{r}.png',
-                attribution: '© OpenStreetMap contributors © CARTO'
+                url: BASEMAP.url,
+                attribution: 'BASEMAP.attribution'
             },
             {
                 id: 'demand-points',
